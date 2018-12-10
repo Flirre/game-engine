@@ -16,13 +16,18 @@ void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<Game
 	sprite = system->createSprite(sprite_name);
 }
 
+void RenderComponent::SetSprite(Sprite * ssprite) {
+	sprite = ssprite;
+}
+
+
 void RenderComponent::Update(float dt)
 {
 	if (!go->enabled)
 		return;
 
 	if (sprite)
-		sprite->draw(int(go->horizontalPosition), int(go->verticalPosition));
+		sprite->draw(int(go->horizontalPosition), int(go->verticalPosition), go->direction);
 }
 
 void RenderComponent::Destroy()

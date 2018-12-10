@@ -39,7 +39,7 @@ public:
 		direction *= -1;
 		verticalPosition += 32;
 
-		if (verticalPosition > (480 - 32))
+		if (verticalPosition > (256 - 32))
 			Send(GAME_OVER);
 	}
 
@@ -58,7 +58,7 @@ public:
 
 		alien->horizontalPosition += alien->direction * ALIEN_SPEED * dt; // direction * speed * time
 
-		if ((alien->direction == 1) && (alien->horizontalPosition > (640 - 32)))
+		if ((alien->direction == 1) && (alien->horizontalPosition > (224 - 32)))
 			*(alien->change_direction) = true;
 
 		if ((alien->direction == -1) && (alien->horizontalPosition < 0))

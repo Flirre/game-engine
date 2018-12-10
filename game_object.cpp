@@ -15,6 +15,16 @@ void GameObject::AddComponent(Component * component)
 }
 
 
+void GameObject::AddRenderComponent(RenderComponent* component) {
+	components.push_back(component);
+	renderComponent = component;
+}
+
+void GameObject::SetSprite(Sprite * sprite) {
+	renderComponent->SetSprite(sprite);
+}
+
+
 void GameObject::Init()
 {
 	SDL_Log("GameObject::Init");

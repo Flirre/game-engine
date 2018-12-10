@@ -33,6 +33,7 @@ public:
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, const char * sprite_name);
 	virtual void Update(float dt);
 	virtual void Destroy();
+	virtual void SetSprite(Sprite * sprite);
 
 	Sprite * GetSprite() { return sprite; }
 };

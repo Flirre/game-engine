@@ -21,8 +21,8 @@ public:
 	{
 		time_bomb_launched = -10000.f;	// time from the last time a bomb was dropped by one of the aliens
 
-		for (auto i = 0; i < 5; i++)
-			for (auto j = 0; j < 11; j++)
+		for (auto i = 0; i < 1; i++)
+			for (auto j = 0; j < 2; j++)
 			{
 				Alien * alien = aliens_pool->FirstAvailable();
 				alien->Init(&change_direction, j * 38 + 111, i * 32 + 32 * 2);

@@ -39,7 +39,7 @@ bool AvancezLib::init(int width, int height)
 	}
 
 	// initialize the keys
-	key.fire = false;	key.left = false;	key.right = false;
+	key.space = false;	key.left = false;	key.right = false;
 
 	//Initialize renderer color
 	SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -87,7 +87,7 @@ bool AvancezLib::update()
 				go_on = false;
 				break;
 			case SDLK_SPACE:
-				key.fire = true;
+				key.space = true;
 				break;
 			case SDLK_LEFT:
 				key.left = true;
@@ -103,7 +103,7 @@ bool AvancezLib::update()
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_SPACE:
-				key.fire = false;
+				key.space = false;
 				break;
 			case SDLK_LEFT:
 				key.left = false;
@@ -134,7 +134,6 @@ Sprite * AvancezLib::createSprite(const char * path)
 		SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to load image %s! SDL_image Error: %s\n", path, SDL_GetError());
 		return NULL;
 	}
-
 	//Create texture from surface pixels
 	SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, surf);
 	if (texture == NULL)
@@ -145,8 +144,8 @@ Sprite * AvancezLib::createSprite(const char * path)
 
 	//Get rid of old loaded surface
 	SDL_FreeSurface(surf);
-
 	Sprite * sprite = new Sprite(renderer, texture);
+	
 
 	return sprite;
 }
@@ -177,7 +176,7 @@ float AvancezLib::getElapsedTime()
 
 void AvancezLib::getKeyStatus(KeyStatus & keys)
 {
-	keys.fire = key.fire;
+	keys.space = key.space;
 	keys.left = key.left;
 	keys.right = key.right;
 }
@@ -190,7 +189,7 @@ Sprite::Sprite(SDL_Renderer * renderer, SDL_Texture * texture)
 }
 
 
-void Sprite::draw(int x, int y)
+void Sprite::draw(int x, int y, bool flipped)
 {
 	SDL_Rect rect;
 
@@ -198,9 +197,14 @@ void Sprite::draw(int x, int y)
 	rect.y = y;
 
 	SDL_QueryTexture(texture, NULL, NULL, &(rect.w), &(rect.h));
-
-	//Render texture to screen
-	SDL_RenderCopy(renderer, texture, NULL, &rect);
+	if (!flipped) {
+		SDL_RendererFlip flip = SDL_RendererFlip(SDL_FLIP_HORIZONTAL);
+		SDL_RenderCopyEx(renderer, texture, NULL, &rect, 0, NULL, flip);
+	}
+	else {
+		//Render texture to screen
+		SDL_RenderCopy(renderer, texture, NULL, &rect);
+	}
 }
 
 

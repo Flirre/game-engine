@@ -29,19 +29,16 @@ public:
 
 		player = new Player();
 		PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
-		player_behaviour->Create(system, player, &game_objects, &rockets_pool);
+		player_behaviour->Create(system, player, &game_objects);
 		RenderComponent * player_render = new RenderComponent();
-		player_render->Create(system, player, &game_objects, "data/player.bmp");
-		CollideComponent * player_bomb_collision = new CollideComponent();
-		player_bomb_collision->Create(system, player, &game_objects, (ObjectPool<GameObject>*)&bombs_pool);
-		CollideComponent * player_alien_collision = new CollideComponent();
-		player_alien_collision->Create(system, player, &game_objects, (ObjectPool<GameObject>*)&aliens_pool);
+		player_render->Create(system, player, &game_objects, "data/bmps/frame6.bmp");
+		PlayerStateMachine * player_state_machine = new PlayerStateMachine();
+		player_state_machine->Create(system, player, &game_objects);
 
 		player->Create();
 		player->AddComponent(player_behaviour);
-		player->AddComponent(player_render);
-		player->AddComponent(player_bomb_collision);
-		player->AddComponent(player_alien_collision);
+		player->AddComponent(player_state_machine);
+		player->AddRenderComponent(player_render);
 		player->AddReceiver(this);
 		game_objects.insert(player);
 
@@ -51,7 +48,7 @@ public:
 			RocketBehaviourComponent * behaviour = new RocketBehaviourComponent();
 			behaviour->Create(system, *rocket, &game_objects);
 			RenderComponent * render = new RenderComponent();
-			render->Create(system, *rocket, &game_objects, "data/rocket.bmp");
+			render->Create(system, *rocket, &game_objects, "data/bmps/frame222.bmp");
 			(*rocket)->Create();
 			(*rocket)->AddComponent(behaviour);
 			(*rocket)->AddComponent(render);
@@ -71,7 +68,7 @@ public:
 			AlienBehaviourComponent * alien_behaviour = new AlienBehaviourComponent();
 			alien_behaviour->Create(system, *alien, &game_objects);
 			RenderComponent * alien_render = new RenderComponent();
-			alien_render->Create(system, *alien, &game_objects, "data/enemy_0.bmp");
+			alien_render->Create(system, *alien, &game_objects, "data/bmps/frame38.bmp");
 			CollideComponent * alien_coll = new CollideComponent();
 			alien_coll->Create(system, *alien, &game_objects, (ObjectPool<GameObject>*)&rockets_pool);
 			(*alien)->Create();
@@ -87,21 +84,21 @@ public:
 			BombBehaviourComponent * bomb_behaviour = new BombBehaviourComponent();
 			bomb_behaviour->Create(system, *bomb, &game_objects);
 			RenderComponent * bomb_render = new RenderComponent();
-			bomb_render->Create(system, *bomb, &game_objects, "data/bomb.bmp");
+			bomb_render->Create(system, *bomb, &game_objects, "data/bmps/frame222.bmp");
 
 			(*bomb)->Create();
 			(*bomb)->AddComponent(bomb_behaviour);
 			(*bomb)->AddComponent(bomb_render);
 		}
 
-		life_sprite = system->createSprite("data/player.bmp");
+		life_sprite = system->createSprite("data/bmps/frame0.bmp");
 		score = 0;
 	}
 
 	virtual void Init()
 	{
 		player->Init();
-		aliens_grid->Init();
+		//aliens_grid->Init();
 
 		enabled = true;
 		game_over = false;
@@ -109,40 +106,43 @@ public:
 
 	virtual void Update(float dt)
 	{
-		if (IsGameOver())
+		if (IsGameOver()) {
+			for (auto go = game_objects.begin(); go != game_objects.end(); go++) {
+				(*go)->Destroy();
+			}
 			dt = 0.f;
-
+		}
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
 			(*go)->Update(dt);
 
 		// check if there are still active aliens
 		// if not, send a message to re-init the level
-		bool are_aliens_still_there = false;
-		for (auto alien = aliens_pool.pool.begin(); alien != aliens_pool.pool.end(); alien++)
-			are_aliens_still_there |= (*alien)->enabled;
-		if (!are_aliens_still_there)
-		{
-			// level win!
-			game_speed += 0.4f;
-			aliens_grid->Init();
-		}
+		//bool are_aliens_still_there = false;
+		//for (auto alien = aliens_pool.pool.begin(); alien != aliens_pool.pool.end(); alien++)
+		//	are_aliens_still_there |= (*alien)->enabled;
+		//if (!are_aliens_still_there)
+		//{
+		//	// level win!
+		//	game_speed += 0.4f;
+		//	aliens_grid->Init();
+		//}
 	}
 
 	virtual void Draw()
 	{
 		char msg[1024];
 		sprintf(msg, "%07d", Score());
-		system->drawText(300, 32, msg);
+		system->drawText(172, 14, msg);
 		sprintf(msg, "bonus: %.1fX", game_speed);
-		system->drawText(510, 32, msg);
+		system->drawText(172, 32, msg);
 
 		for (int i = 0; i < player->lives; i++)
-			life_sprite->draw(i*36+20, 16);
+			life_sprite->draw(i*18+20, 16, false);
 
 		if (IsGameOver())
 		{
 			sprintf(msg, "*** G A M E  O V E R ***");
-			system->drawText(250, 8, msg);
+			system->drawText(55, 110, msg);
 		}
 	}
 

@@ -117,7 +117,7 @@
     <ClCompile Include="avancezlib.cpp" />
     <ClCompile Include="component.cpp" />
     <ClCompile Include="game_object.cpp" />
-    <ClCompile Include="invaders.cpp" />
+    <ClCompile Include="mario.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="alien.h" />
@@ -129,6 +129,7 @@
     <ClInclude Include="game_object.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="player_state_machine.h" />
     <ClInclude Include="rocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
