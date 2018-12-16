@@ -1,31 +1,31 @@
 
 
-// the main player
-class Player : public GameObject
+// a koopa
+class Koopa : public GameObject
 {
 public:
 
 	int lives;	// it's game over when goes below zero 
 
-	virtual ~Player() { SDL_Log("Player::~Player"); }
+	virtual ~Koopa() { SDL_Log("Koopa::~Koopa"); }
 
 	virtual void Init()
 	{
-		SDL_Log("Player::Init");
+		SDL_Log("Koopa::Init");
 		GameObject::Init();
-		lives = NUM_LIVES;
+		lives = 100;
 	}
 
 	virtual void Receive(Message m)
 	{
 		if (m == HIT)
 		{
-			SDL_Log("Player::Hit!");
+			SDL_Log("Koopa::Hit!");
 			RemoveLife();
-
 			if (lives < 0)
 				Send(GAME_OVER);
 		}
+
 	}
 
 	void RemoveLife()
@@ -36,29 +36,30 @@ public:
 };
 
 
-class PlayerBehaviourComponent : public Component
+class KoopaBehaviourComponent : public Component
 {
 
 private:
-	Player * player;
+	Koopa * koopa;
 
 	bool is_walking_left = false;
 	bool is_walking_right = false;
-
 	bool space_released = true;
+	float koopa_horizontal_position = 0.0f;
+	const float KOOPA_SPEED = 160.f;
 
 	Sprite * sprite;
 
 public:
-	virtual ~PlayerBehaviourComponent() {}
+	virtual ~KoopaBehaviourComponent() {}
 
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
 	{
 		Component::Create(system, go, game_objects);
 
-		player = (Player*) go;
-
-		sprite = system->createSprite("data/bmps/frame6.bmp");
+		koopa = (Koopa*) go;
+		go->direction = RIGHT;
+		sprite = system->createSprite("data/bmps/frame38.bmp");
 
 
 	}
@@ -66,17 +67,17 @@ public:
 	virtual void Init()
 	{
 		go->spriteWidth = 16;
-		go->horizontalPosition = WORLD_WIDTH/2;
-		go->verticalPosition = WORLD_HEIGHT - 21; // 21 = Mario sprite height
+		go->horizontalPosition = WORLD_WIDTH / 3;
+		go->verticalPosition = WORLD_HEIGHT/2; // 16 = koopa sprite height
 
-		
-		player_horizontal_position = go->horizontalPosition;
+
+		koopa_horizontal_position = go->horizontalPosition;
 
 		go->horizontalVelocity = 0;
 		go->verticalVelocity = 0;
 
 		// Spawn facing right
-		go->direction = RIGHT;
+
 
 	}
 
@@ -84,7 +85,7 @@ public:
 	// Basic euler integration
 	void UpdatePhysics(float dt) {
 		go->horizontalPosition += go->horizontalVelocity * dt;
-		player_horizontal_position = go->horizontalPosition;
+		koopa_horizontal_position = go->horizontalPosition;
 		go->verticalPosition += go->verticalVelocity	 * dt;
 
 		// If above the ground, apply gravity
@@ -101,33 +102,31 @@ public:
 			go->horizontalPosition = WORLD_WIDTH - go->spriteWidth;
 
 		// Ground
-		if (go->verticalPosition > GROUND_POSITION)
-			go->verticalPosition = GROUND_POSITION;
+		if (go->verticalPosition > GROUND_POSITION+5)
+			go->verticalPosition = GROUND_POSITION+5;
 	}
 
 	// Apply movement based on input keys
 	void UpdateMovement(AvancezLib::KeyStatus keys) {
-		if (keys.left) {
+		if (go->direction == LEFT) {
 			WalkLeft();
 		}
 
-		if (keys.right) {
+		if (go->direction == RIGHT) {
 			WalkRight();
 		}
 
-		if ((is_walking_right && keys.right == false) || (is_walking_left && keys.left == false)) {
-			Stop();
-		}
-
 		if (keys.space && space_released) {
+			ChangeDirection();
 			space_released = false;
-			Jump();
+			Bounce();
 		}
 
 		if (!keys.space) {
 			space_released = true;
 		}
 	}
+
 
 	void WalkLeft() {
 		// Change sprite first time and send event to AI
@@ -138,8 +137,8 @@ public:
 
 		go->direction = LEFT;
 
-		if (abs(go->horizontalVelocity) < PLAYER_SPEED) {
-			go->horizontalVelocity = -PLAYER_SPEED;
+		if (abs(go->horizontalVelocity) < KOOPA_SPEED) {
+			go->horizontalVelocity = -KOOPA_SPEED;
 		}
 
 	}
@@ -153,13 +152,13 @@ public:
 
 		go->direction = RIGHT;
 
-		if (abs(go->horizontalVelocity) < PLAYER_SPEED) {
-			go->horizontalVelocity = PLAYER_SPEED;
+		if (abs(go->horizontalVelocity) < KOOPA_SPEED) {
+			go->horizontalVelocity = KOOPA_SPEED;
 		}
 	}
 
-	void Jump() {
-		if (go->verticalPosition >= GROUND_POSITION) {
+	void Bounce() {
+		if (true) {
 			go->verticalVelocity = -250.0f;
 		}
 	}
@@ -168,6 +167,19 @@ public:
 		go->horizontalVelocity = 0;
 		is_walking_left = false;
 		is_walking_right = false;
+	}
+
+	void ChangeDirection() {
+		Stop();
+		if (go->direction == RIGHT) {
+			WalkLeft();
+			return;
+		}
+		if (go->direction == LEFT) {
+			WalkRight();
+			return;
+		}
+		return;
 	}
 
 

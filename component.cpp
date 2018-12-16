@@ -16,8 +16,8 @@ void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<Game
 	sprite = system->createSprite(sprite_name);
 }
 
-void RenderComponent::SetSprite(Sprite * ssprite) {
-	sprite = ssprite;
+void RenderComponent::SetSprite(Sprite * s) {
+	sprite = s;
 }
 
 

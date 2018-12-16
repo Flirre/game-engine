@@ -120,7 +120,7 @@
     <ClCompile Include="mario.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="alien.h" />
+    <ClInclude Include="koopa.h" />
     <ClInclude Include="aliens_grid.h" />
     <ClInclude Include="avancezlib.h" />
     <ClInclude Include="bomb.h" />
@@ -129,7 +129,6 @@
     <ClInclude Include="game_object.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="player_state_machine.h" />
     <ClInclude Include="rocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

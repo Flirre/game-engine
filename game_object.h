@@ -23,6 +23,9 @@ public:
 
 	double horizontalVelocity;
 	double verticalVelocity;
+
+	unsigned int spriteWidth;
+
 	bool enabled;
 
 	Direction direction;

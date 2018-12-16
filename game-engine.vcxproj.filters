@@ -29,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="alien.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="aliens_grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -59,7 +56,7 @@
     <ClInclude Include="rocket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="player_state_machine.h">
+    <ClInclude Include="koopa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

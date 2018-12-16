@@ -8,7 +8,7 @@
 
 const unsigned int	WORLD_WIDTH = 256;
 const unsigned int	WORLD_HEIGHT = 224;
-const unsigned int	PLAYER_SIZE = 16;
+//const unsigned int	PLAYER_SIZE = 16;
 
 
 const unsigned int	MAX_NUM_GAME_OBJECTS = 10000;
@@ -42,10 +42,9 @@ float game_speed = 1.f;
 
 #include "rocket.h"
 #include "bomb.h"
-#include "alien.h"
+#include "koopa.h"
 #include "aliens_grid.h"
 #include "player.h"
-#include "player_state_machine.h"
 
 #include "game.h"
 

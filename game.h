@@ -7,12 +7,9 @@ class Game : public GameObject
 	
 	AvancezLib* system;
 
-	ObjectPool<Rocket> rockets_pool;	// used to instantiate rockets
-	ObjectPool<Alien> aliens_pool;
-	ObjectPool<Bomb> bombs_pool;
-
 	Player * player;
-	AliensGrid * aliens_grid;
+	Koopa * koopa;
+
 
 	Sprite * life_sprite;
 	bool game_over;
@@ -26,69 +23,31 @@ public:
 		SDL_Log("Game::Create");
 
 		this->system = system;
-
-		player = new Player();
-		PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
-		player_behaviour->Create(system, player, &game_objects);
-		RenderComponent * player_render = new RenderComponent();
-		player_render->Create(system, player, &game_objects, "data/bmps/frame6.bmp");
-		PlayerStateMachine * player_state_machine = new PlayerStateMachine();
-		player_state_machine->Create(system, player, &game_objects);
-
-		player->Create();
-		player->AddComponent(player_behaviour);
-		player->AddComponent(player_state_machine);
-		player->AddRenderComponent(player_render);
-		player->AddReceiver(this);
-		game_objects.insert(player);
-
-		rockets_pool.Create(30);
-		for (auto rocket = rockets_pool.pool.begin(); rocket != rockets_pool.pool.end(); rocket++)
 		{
-			RocketBehaviourComponent * behaviour = new RocketBehaviourComponent();
-			behaviour->Create(system, *rocket, &game_objects);
-			RenderComponent * render = new RenderComponent();
-			render->Create(system, *rocket, &game_objects, "data/bmps/frame222.bmp");
-			(*rocket)->Create();
-			(*rocket)->AddComponent(behaviour);
-			(*rocket)->AddComponent(render);
+			player = new Player();
+			PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
+			player_behaviour->Create(system, player, &game_objects);
+			RenderComponent * player_render = new RenderComponent();
+			player_render->Create(system, player, &game_objects, "data/bmps/frame6.bmp");
+
+			player->Create();
+			player->AddComponent(player_behaviour);
+			player->AddRenderComponent(player_render);
+			player->AddReceiver(this);
+			game_objects.insert(player);
 		}
-
-		aliens_grid = new AliensGrid();
-		AliensGridBehaviourComponent  * aliensgrid_behaviour = new AliensGridBehaviourComponent();
-		aliensgrid_behaviour->Create(system, aliens_grid, &game_objects, &aliens_pool, &bombs_pool);
-		aliens_grid->Create();
-		aliens_grid->AddComponent(aliensgrid_behaviour);
-		game_objects.insert(aliens_grid);
-
-
-		aliens_pool.Create(55);
-		for (auto alien = aliens_pool.pool.begin(); alien != aliens_pool.pool.end(); alien++)
 		{
-			AlienBehaviourComponent * alien_behaviour = new AlienBehaviourComponent();
-			alien_behaviour->Create(system, *alien, &game_objects);
-			RenderComponent * alien_render = new RenderComponent();
-			alien_render->Create(system, *alien, &game_objects, "data/bmps/frame38.bmp");
-			CollideComponent * alien_coll = new CollideComponent();
-			alien_coll->Create(system, *alien, &game_objects, (ObjectPool<GameObject>*)&rockets_pool);
-			(*alien)->Create();
-			(*alien)->AddComponent(alien_behaviour);
-			(*alien)->AddComponent(alien_render);
-			(*alien)->AddComponent(alien_coll);
-			(*alien)->AddReceiver(this);
-		}
+		koopa = new Koopa();
+		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
+		koopa_behaviour->Create(system, koopa, &game_objects);
+		RenderComponent * koopa_render = new RenderComponent();
+		koopa_render->Create(system, koopa, &game_objects, "data/bmps/frame38.bmp");
 
-		bombs_pool.Create(55);
-		for (auto bomb = bombs_pool.pool.begin(); bomb != bombs_pool.pool.end(); bomb++)
-		{
-			BombBehaviourComponent * bomb_behaviour = new BombBehaviourComponent();
-			bomb_behaviour->Create(system, *bomb, &game_objects);
-			RenderComponent * bomb_render = new RenderComponent();
-			bomb_render->Create(system, *bomb, &game_objects, "data/bmps/frame222.bmp");
-
-			(*bomb)->Create();
-			(*bomb)->AddComponent(bomb_behaviour);
-			(*bomb)->AddComponent(bomb_render);
+		koopa->Create();
+		koopa->AddComponent(koopa_behaviour);
+		koopa->AddRenderComponent(koopa_render);
+		koopa->AddReceiver(this);
+		game_objects.insert(koopa);
 		}
 
 		life_sprite = system->createSprite("data/bmps/frame0.bmp");
@@ -98,6 +57,7 @@ public:
 	virtual void Init()
 	{
 		player->Init();
+		koopa->Init();
 		//aliens_grid->Init();
 
 		enabled = true;
@@ -174,12 +134,9 @@ public:
 			(*go)->Destroy();
 
 		life_sprite->destroy();
-	
-		rockets_pool.Destroy();
-		aliens_pool.Destroy();
-		bombs_pool.Destroy();
 
-		delete aliens_grid;
+		//delete aliens_grid;
 		delete player;
+		delete koopa;
 	}
 };
