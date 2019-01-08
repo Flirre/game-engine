@@ -68,22 +68,31 @@ void CollideComponent::Update(float dt)
 
 				//}
 				if (
-					(
+					(	// if go is above go0
 						((go0->verticalPosition > go->verticalPosition) &&
 						((go0->verticalPosition - go->verticalPosition) <= (go->spriteHeight)) &&
 						((go0->verticalPosition - go->verticalPosition) >= 0)
 					) 
 					||
-					(
-						(go0->verticalPosition < go->verticalPosition) &&
-						((go0->verticalPosition - go->verticalPosition) <= (go0->spriteHeight)) &&
-						((go0->verticalPosition - go->verticalPosition) >= 0))
+					(	// if go0 is above go
+						(go0->verticalPosition < go->verticalPosition) && 
+						((go->verticalPosition - go0->verticalPosition) <= (go0->spriteHeight)) &&
+						((go->verticalPosition - go0->verticalPosition) >= 0))
 					) 
 					&&
 					(
+					(
+					((go0->horizontalPosition < go->horizontalPosition) &&
 					((go0->horizontalPosition - go->horizontalPosition) >= -go0->spriteWidth) &&
-					((go0->horizontalPosition - go->horizontalPosition) <= 0)
+					((go0->horizontalPosition - go->horizontalPosition) <= 0))
 					)
+					||
+					(
+					((go0->horizontalPosition > go->horizontalPosition) &&
+					((go->horizontalPosition - go0->horizontalPosition) >= -go->spriteWidth) &&
+					((go->horizontalPosition - go0->horizontalPosition) <= 0))
+					)
+				    )
 				   )
 				{
 					{
