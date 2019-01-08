@@ -1,4 +1,4 @@
-
+#pragma once
 
 // a koopa
 class Koopa : public GameObject
@@ -22,8 +22,14 @@ public:
 		{
 			SDL_Log("Koopa::Hit!");
 			RemoveLife();
-			if (lives < 0)
-				Send(GAME_OVER);
+			if (lives < 0) {
+				SDL_Log("Koopa:Ded!");
+				this->enabled = false;
+			}
+		}
+		if (m == SIDE_HIT)
+		{
+			SDL_Log("Koopa::SIDESLAMMER");
 		}
 
 	}
@@ -46,7 +52,7 @@ private:
 	bool is_walking_right = false;
 	bool space_released = true;
 	float koopa_horizontal_position = 0.0f;
-	const float KOOPA_SPEED = 160.f;
+	const float KOOPA_SPEED = 60.0f;
 
 	Sprite * sprite;
 
@@ -59,7 +65,7 @@ public:
 
 		koopa = (Koopa*) go;
 		go->direction = RIGHT;
-		sprite = system->createSprite("data/bmps/frame38.bmp");
+		//sprite = system->createSprite("data/bmps/frame38.bmp");
 
 
 	}
@@ -67,8 +73,9 @@ public:
 	virtual void Init()
 	{
 		go->spriteWidth = 16;
+		go->spriteHeight = 16;
 		go->horizontalPosition = WORLD_WIDTH / 3;
-		go->verticalPosition = WORLD_HEIGHT/2; // 16 = koopa sprite height
+		go->verticalPosition = WORLD_HEIGHT/2;
 
 
 		koopa_horizontal_position = go->horizontalPosition;
@@ -117,9 +124,9 @@ public:
 		}
 
 		if (keys.space && space_released) {
-			ChangeDirection();
+			//ChangeDirection();
 			space_released = false;
-			Bounce();
+			//Bounce();
 		}
 
 		if (!keys.space) {
@@ -131,7 +138,7 @@ public:
 	void WalkLeft() {
 		// Change sprite first time and send event to AI
 		if (!is_walking_left) {
-			go->SetSprite(sprite);
+			//go->SetSprite(sprite);
 		}
 		is_walking_left = true;
 
@@ -146,7 +153,7 @@ public:
 	void WalkRight() {
 		// Change sprite first time
 		if (!is_walking_right) {
-			go->SetSprite(sprite);
+			//go->SetSprite(sprite);
 		}
 		is_walking_right = true;
 
@@ -159,7 +166,7 @@ public:
 
 	void Bounce() {
 		if (true) {
-			go->verticalVelocity = -250.0f;
+			go->verticalVelocity = -125.0f;
 		}
 	}
 
@@ -183,7 +190,7 @@ public:
 	}
 
 
-	// Update the palyer
+	// Update the player
 	// physics depend on the time.
 	virtual void Update(float dt)
 	{
@@ -191,7 +198,7 @@ public:
 		system->getKeyStatus(keys);
 
 		UpdatePhysics(dt);
-		UpdateMovement(keys);
+		//UpdateMovement(keys);
 		CheckBounds();
 	}
 

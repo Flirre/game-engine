@@ -4,11 +4,14 @@ bool change_direction = false;
 class Game : public GameObject
 {
 	std::set<GameObject*> game_objects;	// http://www.cplusplus.com/reference/set/set/
+	ObjectPool<Koopa> koopa_pool;
+	ObjectPool<MapObject> map;
 	
 	AvancezLib* system;
 
 	Player * player;
-	Koopa * koopa;
+
+	MapObject * ledge;
 
 
 	Sprite * life_sprite;
@@ -23,31 +26,51 @@ public:
 		SDL_Log("Game::Create");
 
 		this->system = system;
+		map.Create(1);
+		for ( auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
+		{
+			RenderComponent * ledge_render = new RenderComponent();
+			ledge_render->Create(system, *map_object, &game_objects, "data/bmps/board/frame23.bmp");
+
+			(*map_object)->Create();
+			(*map_object)->AddRenderComponent(ledge_render);
+			(*map_object)->AddReceiver(this);
+			game_objects.insert(*map_object);
+		}
+
 		{
 			player = new Player();
 			PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
 			player_behaviour->Create(system, player, &game_objects);
 			RenderComponent * player_render = new RenderComponent();
 			player_render->Create(system, player, &game_objects, "data/bmps/frame6.bmp");
+			CollideComponent * player_collider = new CollideComponent();
+			player_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
+			CollideComponent * map_collider = new CollideComponent();
+			map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
 
 			player->Create();
 			player->AddComponent(player_behaviour);
+			player->AddComponent(player_collider);
+			player->AddComponent(map_collider);
 			player->AddRenderComponent(player_render);
 			player->AddReceiver(this);
 			game_objects.insert(player);
 		}
-		{
-		koopa = new Koopa();
-		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
-		koopa_behaviour->Create(system, koopa, &game_objects);
-		RenderComponent * koopa_render = new RenderComponent();
-		koopa_render->Create(system, koopa, &game_objects, "data/bmps/frame38.bmp");
 
-		koopa->Create();
-		koopa->AddComponent(koopa_behaviour);
-		koopa->AddRenderComponent(koopa_render);
-		koopa->AddReceiver(this);
-		game_objects.insert(koopa);
+		koopa_pool.Create(1);
+		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++)
+		{
+		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
+		koopa_behaviour->Create(system, *koopa, &game_objects);
+		RenderComponent * koopa_render = new RenderComponent();
+		koopa_render->Create(system, *koopa, &game_objects, "data/bmps/frame38.bmp");
+
+		(*koopa)->Create();
+		(*koopa)->AddComponent(koopa_behaviour);
+		(*koopa)->AddRenderComponent(koopa_render);
+		(*koopa)->AddReceiver(this);
+		game_objects.insert(*koopa);
 		}
 
 		life_sprite = system->createSprite("data/bmps/frame0.bmp");
@@ -56,8 +79,17 @@ public:
 
 	virtual void Init()
 	{
+		for (auto map_object = map.pool.begin(); map_object!= map.pool.end(); map_object++)
+		{
+			(*map_object)->Init();
+		}
+
 		player->Init();
-		koopa->Init();
+
+		for (auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++)
+		{
+			(*koopa)->Init();
+		}
 		//aliens_grid->Init();
 
 		enabled = true;
@@ -137,6 +169,5 @@ public:
 
 		//delete aliens_grid;
 		delete player;
-		delete koopa;
 	}
 };

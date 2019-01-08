@@ -50,15 +50,45 @@ void CollideComponent::Update(float dt)
 	for (auto i = 0; i < coll_objects->pool.size(); i++)
 	{
 		GameObject * go0 = coll_objects->pool[i];
-		if (go0->enabled)
-		{
-			if ((go0->horizontalPosition > go->horizontalPosition - 10) &&
-				(go0->horizontalPosition < go->horizontalPosition + 10) &&
-				(go0->verticalPosition   > go->verticalPosition - 10) &&
-				(go0->verticalPosition   < go->verticalPosition + 10))
+		if (go0->enabled) {
+			if (go0->enabled)
 			{
-				go->Receive(HIT);
-				go0->Receive(HIT);
+				//if ((abs(go0->horizontalPosition - go->horizontalPosition) < 12) &&
+				//	(abs(go0->verticalPosition - go->verticalPosition)) < 10)
+				//{
+				//	if (go0->map_object)
+				//	{
+				//		SDL_Log("fk");
+				//		go->Receive(MAP);
+				//	}
+				//	else
+				//	{
+				//		go->Receive(SIDE_HIT);
+				//	}
+
+				//}
+				if (
+					((go0->verticalPosition - go->verticalPosition) < (go->spriteHeight)) &&
+					((go0->verticalPosition - go->verticalPosition) > 0) &&
+					((go0->horizontalPosition - go->horizontalPosition) > 0) &&
+					(go0->horizontalPosition - go->horizontalPosition) < go0->spriteWidth)
+				{
+					{
+						if (go0->map_object)
+						{
+							go->Receive(MAP);
+							SDL_Log("MAPO::VertPos=%d", go0->verticalPosition);
+						}
+						else
+						{
+							SDL_Log("GAMO::VertPos=%d", go->verticalPosition);
+							SDL_Log("GAMO MAPO DIFF=%d", (go0->verticalPosition - go->verticalPosition));
+							go->Receive(MAP);
+							go->Receive(HIT);
+							go0->Receive(HIT);
+						}
+					}
+				}
 			}
 		}
 	}

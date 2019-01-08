@@ -42,6 +42,7 @@ public:
 class CollideComponent : public Component
 {
 	ObjectPool<GameObject> * coll_objects; // collision will be tested with these objects
+	bool map_object; // used to differentiate map object and game object collision.
 
 public:
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, ObjectPool<GameObject> * coll_objects);

@@ -19,7 +19,7 @@ const unsigned int	MAX_NUM_BOMBS = 32;
 const unsigned int	POINTS_PER_ALIEN = 100;
 const float			FIRE_TIME_INTERVAL = .5f;
 const float			BOMB_TIME_INTERVAL = 1.25f;
-const float			PLAYER_SPEED = 160.0f;
+const float			PLAYER_SPEED = 120.0f;
 const float			GRAVITY = -500.0f;
 const float			ROCKET_SPEED = 160.0f;
 const float			ALIEN_SPEED = 40.0f;
@@ -35,6 +35,7 @@ float game_speed = 1.f;
 
 #include "component.h"
 #include "game_object.h"
+#include "map_object.h"
 
 
 //#include "collision_system.h"

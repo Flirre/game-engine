@@ -1,7 +1,7 @@
 // GameObject represents objects which moves are drawn
 #include <vector>
 
-enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG };
+enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG, SIDE_HIT, DIE, MAP };
 
 enum Direction { RIGHT, LEFT };
 
@@ -24,9 +24,11 @@ public:
 	double horizontalVelocity;
 	double verticalVelocity;
 
-	unsigned int spriteWidth;
+	int spriteWidth;
+	int spriteHeight;
 
 	bool enabled;
+	bool map_object = false;
 
 	Direction direction;
 

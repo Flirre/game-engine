@@ -59,5 +59,8 @@
     <ClInclude Include="koopa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="map_object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

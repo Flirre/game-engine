@@ -6,6 +6,8 @@ class Player : public GameObject
 public:
 
 	int lives;	// it's game over when goes below zero 
+	int hits = 0;
+	bool onGround;
 
 	virtual ~Player() { SDL_Log("Player::~Player"); }
 
@@ -18,20 +20,32 @@ public:
 
 	virtual void Receive(Message m)
 	{
+		onGround = false;
 		if (m == HIT)
 		{
-			SDL_Log("Player::Hit!");
+			SDL_Log("Player::TopHit");
+		}
+		if (m == SIDE_HIT) 
+		{
+			hits++;
+			SDL_Log("Player::SideHit! %d", hits);
 			RemoveLife();
 
 			if (lives < 0)
 				Send(GAME_OVER);
 		}
+		if (m == MAP)
+		{
+			hits++;
+			SDL_Log("STANDING ON MAP %d", hits);
+			onGround = true;
+		}
 	}
 
 	void RemoveLife()
 	{
-		lives--;
-		SDL_Log("remaining lives %d", lives);
+		//lives--;
+		//SDL_Log("remaining lives %d", lives);
 	}
 };
 
@@ -58,16 +72,15 @@ public:
 
 		player = (Player*) go;
 
-		sprite = system->createSprite("data/bmps/frame6.bmp");
-
 
 	}
 
 	virtual void Init()
 	{
 		go->spriteWidth = 16;
+		go->spriteHeight = 21;
 		go->horizontalPosition = WORLD_WIDTH/2;
-		go->verticalPosition = WORLD_HEIGHT - 21; // 21 = Mario sprite height
+		go->verticalPosition = WORLD_HEIGHT - go->spriteHeight;
 
 		
 		player_horizontal_position = go->horizontalPosition;
@@ -88,8 +101,12 @@ public:
 		go->verticalPosition += go->verticalVelocity	 * dt;
 
 		// If above the ground, apply gravity
-		if (go->verticalPosition < GROUND_POSITION) {
+		if (go->verticalPosition < GROUND_POSITION && !(player->onGround)) {
 			go->verticalVelocity -= GRAVITY * dt;
+		}
+		if (player->onGround)
+		{
+			go->verticalVelocity = 0;
 		}
 	}
 
@@ -132,7 +149,6 @@ public:
 	void WalkLeft() {
 		// Change sprite first time and send event to AI
 		if (!is_walking_left) {
-			go->SetSprite(sprite);
 		}
 		is_walking_left = true;
 
@@ -147,7 +163,6 @@ public:
 	void WalkRight() {
 		// Change sprite first time
 		if (!is_walking_right) {
-			go->SetSprite(sprite);
 		}
 		is_walking_right = true;
 
@@ -177,10 +192,10 @@ public:
 	{
 		AvancezLib::KeyStatus keys;
 		system->getKeyStatus(keys);
-
 		UpdatePhysics(dt);
 		UpdateMovement(keys);
 		CheckBounds();
+		player->onGround = false;
 	}
 
 };
