@@ -37,7 +37,7 @@ public:
 		if (m == MAP)
 		{
 			hits++;
-			SDL_Log("STANDING ON MAP %d", hits);
+			//SDL_Log("STANDING ON MAP %d", hits);
 			onGround = true;
 		}
 	}

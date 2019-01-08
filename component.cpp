@@ -68,16 +68,30 @@ void CollideComponent::Update(float dt)
 
 				//}
 				if (
-					((go0->verticalPosition - go->verticalPosition) < (go->spriteHeight)) &&
-					((go0->verticalPosition - go->verticalPosition) > 0) &&
-					((go0->horizontalPosition - go->horizontalPosition) > 0) &&
-					(go0->horizontalPosition - go->horizontalPosition) < go0->spriteWidth)
+					(
+						((go0->verticalPosition > go->verticalPosition) &&
+						((go0->verticalPosition - go->verticalPosition) <= (go->spriteHeight)) &&
+						((go0->verticalPosition - go->verticalPosition) >= 0)
+					) 
+					||
+					(
+						(go0->verticalPosition < go->verticalPosition) &&
+						((go0->verticalPosition - go->verticalPosition) <= (go0->spriteHeight)) &&
+						((go0->verticalPosition - go->verticalPosition) >= 0))
+					) 
+					&&
+					(
+					((go0->horizontalPosition - go->horizontalPosition) >= -go0->spriteWidth) &&
+					((go0->horizontalPosition - go->horizontalPosition) <= 0)
+					)
+				   )
 				{
 					{
 						if (go0->map_object)
 						{
 							go->Receive(MAP);
 							SDL_Log("MAPO::VertPos=%d", go0->verticalPosition);
+							SDL_Log("GAMO MAPO horiDIFF=%f", (go0->horizontalPosition - go->horizontalPosition));
 						}
 						else
 						{
