@@ -44,6 +44,30 @@ void CollideComponent::Create(AvancezLib* system, GameObject * go, std::set<Game
 	this->coll_objects = coll_objects;
 }
 
+bool collisionAbove(GameObject* go, GameObject* go0) {
+	return ((go0->verticalPosition > go->verticalPosition) &&
+		((go0->verticalPosition - go->verticalPosition) <= (go->spriteHeight)) &&
+		((go0->verticalPosition - go->verticalPosition) >= 0));
+}
+
+bool collisionBelow(GameObject* go, GameObject* go0) {
+	return ((go0->verticalPosition < go->verticalPosition) &&
+		((go->verticalPosition - go0->verticalPosition) <= (go0->spriteHeight)) &&
+		((go->verticalPosition - go0->verticalPosition) >= 0));
+}
+
+bool collisionLeft(GameObject* go, GameObject* go0) {
+	return ((go0->horizontalPosition < go->horizontalPosition) &&
+		((go0->horizontalPosition - go->horizontalPosition) >= -go0->spriteWidth) &&
+		((go0->horizontalPosition - go->horizontalPosition) <= 0));
+}
+
+bool collisionRight(GameObject* go, GameObject* go0) {
+	return ((go0->horizontalPosition > go->horizontalPosition) &&
+		((go->horizontalPosition - go0->horizontalPosition) >= -go->spriteWidth) &&
+		((go->horizontalPosition - go0->horizontalPosition) <= 0));
+}
+
 
 void CollideComponent::Update(float dt)
 {
@@ -67,33 +91,7 @@ void CollideComponent::Update(float dt)
 				//	}
 
 				//}
-				if (
-					(	// if go is above go0
-						((go0->verticalPosition > go->verticalPosition) &&
-						((go0->verticalPosition - go->verticalPosition) <= (go->spriteHeight)) &&
-						((go0->verticalPosition - go->verticalPosition) >= 0)
-					) 
-					||
-					(	// if go0 is above go
-						(go0->verticalPosition < go->verticalPosition) && 
-						((go->verticalPosition - go0->verticalPosition) <= (go0->spriteHeight)) &&
-						((go->verticalPosition - go0->verticalPosition) >= 0))
-					) 
-					&&
-					(
-					(
-					((go0->horizontalPosition < go->horizontalPosition) &&
-					((go0->horizontalPosition - go->horizontalPosition) >= -go0->spriteWidth) &&
-					((go0->horizontalPosition - go->horizontalPosition) <= 0))
-					)
-					||
-					(
-					((go0->horizontalPosition > go->horizontalPosition) &&
-					((go->horizontalPosition - go0->horizontalPosition) >= -go->spriteWidth) &&
-					((go->horizontalPosition - go0->horizontalPosition) <= 0))
-					)
-				    )
-				   )
+				if ( (collisionAbove(go, go0) || collisionBelow(go, go0)) && (collisionLeft(go, go0) || collisionRight(go, go0)))
 				{
 					{
 						if (go0->map_object)
