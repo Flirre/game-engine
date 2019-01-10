@@ -6,6 +6,7 @@ class Game : public GameObject
 	std::set<GameObject*> game_objects;	// http://www.cplusplus.com/reference/set/set/
 	ObjectPool<Koopa> koopa_pool;
 	ObjectPool<MapObject> map;
+	ObjectPool<Brick> bricks;
 	std::vector<std::pair<double, double>> ledge_coordinates;
 	
 	AvancezLib* system;
@@ -50,12 +51,10 @@ public:
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 87));
 		}
 
-		map.Create(ledge_coordinates.size() + (WORLD_WIDTH/16)+1);
+		map.Create(ledge_coordinates.size());
 		{
-			int j = 0;
-			int ledgeSize = ledge_coordinates.size();
 			// create ledges that players and enemies walk on
-			for (auto map_object = map.pool.begin(); j < ledgeSize; map_object++, j++)
+			for (auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
 			{
 				(*map_object)->horizontalPosition = ledge_coordinates.back().first;
 				(*map_object)->verticalPosition = ledge_coordinates.back().second;
@@ -69,8 +68,9 @@ public:
 			}
 
 			// create bricks at the bottom of the map
-			j = 0;
-			for (auto brick = map.pool.begin()+ledgeSize; brick != map.pool.end(); brick++, j++)
+			int j = 0;
+			bricks.Create(16);
+			for (auto brick = bricks.pool.begin(); brick != bricks.pool.end(); brick++, j++)
 			{
 				(*brick)->horizontalPosition = 0 + (16*j);
 				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
@@ -94,11 +94,14 @@ public:
 			player_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
 			CollideComponent * map_collider = new CollideComponent();
 			map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
+			CollideComponent * brick_collider = new CollideComponent();
+			brick_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &bricks);
 
 			player->Create();
 			player->AddComponent(player_behaviour);
 			player->AddComponent(player_collider);
 			player->AddComponent(map_collider);
+			player->AddComponent(brick_collider);
 			player->AddRenderComponent(player_render);
 			player->AddReceiver(this);
 			game_objects.insert(player);
@@ -125,9 +128,14 @@ public:
 
 	virtual void Init()
 	{
-		for (auto map_object = map.pool.begin(); map_object!= map.pool.end(); map_object++)
+		for (auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
 		{
-			(*map_object)->Init();
+				(*map_object)->Init();
+		}
+
+		for (auto brick = bricks.pool.begin(); brick != bricks.pool.end(); brick++)
+		{
+			(*brick)->Init();
 		}
 
 		player->Init();

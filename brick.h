@@ -1,7 +1,7 @@
 #pragma once
 
 // brick object
-class Brick : public GameObject
+class Brick : public MapObject
 {
 public:
 	virtual ~Brick() { SDL_Log("Brick::Brick"); }
@@ -9,7 +9,7 @@ public:
 	virtual void Init()
 	{
 		SDL_Log("Bricks::Init");
-		GameObject::Init();
+		MapObject::Init();
 
 		this->spriteWidth = 16;
 		this->spriteHeight = 15;
