@@ -120,6 +120,7 @@
     <ClCompile Include="mario.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="brick.h" />
     <ClInclude Include="koopa.h" />
     <ClInclude Include="aliens_grid.h" />
     <ClInclude Include="avancezlib.h" />

@@ -6,12 +6,11 @@ class Game : public GameObject
 	std::set<GameObject*> game_objects;	// http://www.cplusplus.com/reference/set/set/
 	ObjectPool<Koopa> koopa_pool;
 	ObjectPool<MapObject> map;
+	std::vector<std::pair<double, double>> ledge_coordinates;
 	
 	AvancezLib* system;
 
 	Player * player;
-
-	MapObject * ledge;
 
 
 	Sprite * life_sprite;
@@ -26,16 +25,63 @@ public:
 		SDL_Log("Game::Create");
 
 		this->system = system;
-		map.Create(1);
-		for ( auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
-		{
-			RenderComponent * ledge_render = new RenderComponent();
-			ledge_render->Create(system, *map_object, &game_objects, "data/bmps/board/frame23.bmp");
 
-			(*map_object)->Create();
-			(*map_object)->AddRenderComponent(ledge_render);
-			(*map_object)->AddReceiver(this);
-			game_objects.insert(*map_object);
+		{
+			ledge_coordinates.push_back(std::make_pair(0, 175));
+			ledge_coordinates.push_back(std::make_pair(32, 175));
+			ledge_coordinates.push_back(std::make_pair(65, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 33, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 66, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 175));
+
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH / 2, 131));
+			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2)-33, 131));
+			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2) + 33, 131));
+			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2) - 66, 131));
+
+			ledge_coordinates.push_back(std::make_pair(0, 140));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 140));
+
+			ledge_coordinates.push_back(std::make_pair(0, 87));
+			ledge_coordinates.push_back(std::make_pair(32, 87));
+			ledge_coordinates.push_back(std::make_pair(65, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-66, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 87));
+		}
+
+		map.Create(ledge_coordinates.size() + (WORLD_WIDTH/16)+1);
+		{
+			int j = 0;
+			int ledgeSize = ledge_coordinates.size();
+			// create ledges that players and enemies walk on
+			for (auto map_object = map.pool.begin(); j < ledgeSize; map_object++, j++)
+			{
+				(*map_object)->horizontalPosition = ledge_coordinates.back().first;
+				(*map_object)->verticalPosition = ledge_coordinates.back().second;
+				ledge_coordinates.pop_back();
+				RenderComponent * ledge_render = new RenderComponent();
+				ledge_render->Create(system, *map_object, &game_objects, "data/bmps/board/frame23.bmp");
+				(*map_object)->Create();
+				(*map_object)->AddRenderComponent(ledge_render);
+				(*map_object)->AddReceiver(this);
+				game_objects.insert(*map_object);
+			}
+
+			// create bricks at the bottom of the map
+			j = 0;
+			for (auto brick = map.pool.begin()+ledgeSize; brick != map.pool.end(); brick++, j++)
+			{
+				(*brick)->horizontalPosition = 0 + (16*j);
+				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
+
+				RenderComponent * bridge_render = new RenderComponent();
+				bridge_render->Create(system, (*brick), &game_objects, "data/bmps/board/frame0.bmp");
+				(*brick)->Create();
+				(*brick)->AddRenderComponent(bridge_render);
+				(*brick)->AddReceiver(this);
+				game_objects.insert(*brick);
+			}
 		}
 
 		{

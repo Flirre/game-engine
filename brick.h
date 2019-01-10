@@ -1,18 +1,18 @@
 #pragma once
 
-// map object
-class MapObject : public GameObject
+// brick object
+class Brick : public GameObject
 {
 public:
-	virtual ~MapObject() { SDL_Log("MapObject::MapObject"); }
+	virtual ~Brick() { SDL_Log("Brick::Brick"); }
 
-	virtual void Init() 
+	virtual void Init()
 	{
-		SDL_Log("MapObject::Init");
+		SDL_Log("Bricks::Init");
 		GameObject::Init();
 
-		this->spriteWidth = 33;
-		this->spriteHeight = 9;
+		this->spriteWidth = 16;
+		this->spriteHeight = 15;
 
 		this->horizontalVelocity = 0;
 		this->verticalVelocity = 0;

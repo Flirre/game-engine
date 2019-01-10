@@ -34,10 +34,10 @@ public:
 			if (lives < 0)
 				Send(GAME_OVER);
 		}
-		if (m == MAP)
+		if (m == ON_MAP)
 		{
 			hits++;
-			//SDL_Log("STANDING ON MAP %d", hits);
+			SDL_Log("STANDING ON MAP %d", onGround);
 			onGround = true;
 		}
 	}
@@ -80,7 +80,7 @@ public:
 		go->spriteWidth = 16;
 		go->spriteHeight = 21;
 		go->horizontalPosition = WORLD_WIDTH/2;
-		go->verticalPosition = WORLD_HEIGHT - go->spriteHeight;
+		go->verticalPosition = 0;
 
 		
 		player_horizontal_position = go->horizontalPosition;
@@ -104,7 +104,7 @@ public:
 		if (go->verticalPosition < GROUND_POSITION && !(player->onGround)) {
 			go->verticalVelocity -= GRAVITY * dt;
 		}
-		if (player->onGround)
+		if (player->onGround && go->verticalVelocity >= 0)
 		{
 			go->verticalVelocity = 0;
 		}
@@ -174,8 +174,9 @@ public:
 	}
 
 	void Jump() {
-		if (go->verticalPosition >= GROUND_POSITION) {
+		if (player->onGround == true) {
 			go->verticalVelocity = -250.0f;
+			player->onGround = false;
 		}
 	}
 
@@ -190,6 +191,7 @@ public:
 	// physics depend on the time.
 	virtual void Update(float dt)
 	{
+		SDL_Log("%s", player->onGround ? "true" : "false");
 		AvancezLib::KeyStatus keys;
 		system->getKeyStatus(keys);
 		UpdatePhysics(dt);

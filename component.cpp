@@ -75,42 +75,32 @@ void CollideComponent::Update(float dt)
 	{
 		GameObject * go0 = coll_objects->pool[i];
 		if (go0->enabled) {
-			if (go0->enabled)
-			{
-				//if ((abs(go0->horizontalPosition - go->horizontalPosition) < 12) &&
-				//	(abs(go0->verticalPosition - go->verticalPosition)) < 10)
-				//{
-				//	if (go0->map_object)
-				//	{
-				//		SDL_Log("fk");
-				//		go->Receive(MAP);
-				//	}
-				//	else
-				//	{
-				//		go->Receive(SIDE_HIT);
-				//	}
-
-				//}
 				if ( (collisionAbove(go, go0) || collisionBelow(go, go0)) && (collisionLeft(go, go0) || collisionRight(go, go0)))
 				{
-					{
-						if (go0->map_object)
+					if (go0->map_object)
 						{
-							go->Receive(MAP);
+						if (collisionBelow(go, go0)) 
+						{
+							go->verticalVelocity = 0;
+						}
+						if (collisionAbove(go, go0))
+						{
+							//go->Receive(MAP);
+							go->Receive(ON_MAP);
 							SDL_Log("MAPO::VertPos=%d", go0->verticalPosition);
 							SDL_Log("GAMO MAPO horiDIFF=%f", (go0->horizontalPosition - go->horizontalPosition));
 						}
-						else
+
+					}
+					else
 						{
 							SDL_Log("GAMO::VertPos=%d", go->verticalPosition);
 							SDL_Log("GAMO MAPO DIFF=%d", (go0->verticalPosition - go->verticalPosition));
 							go->Receive(MAP);
 							go->Receive(HIT);
 							go0->Receive(HIT);
-						}
 					}
 				}
-			}
 		}
 	}
 }

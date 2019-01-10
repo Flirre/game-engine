@@ -5,6 +5,7 @@
 #include "object_pool.h"
 
 #include <set>
+#include <utility>      // std::pair, std::make_pair
 
 const unsigned int	WORLD_WIDTH = 256;
 const unsigned int	WORLD_HEIGHT = 224;
@@ -36,6 +37,7 @@ float game_speed = 1.f;
 #include "component.h"
 #include "game_object.h"
 #include "map_object.h"
+#include "brick.h"
 
 
 //#include "collision_system.h"
