@@ -27,6 +27,7 @@ public:
 
 		this->system = system;
 
+		// create pairs of x- and y-coordinates for placement of ledges.
 		{
 			ledge_coordinates.push_back(std::make_pair(0, 175));
 			ledge_coordinates.push_back(std::make_pair(32, 175));
@@ -72,6 +73,7 @@ public:
 			bricks.Create(16);
 			for (auto brick = bricks.pool.begin(); brick != bricks.pool.end(); brick++, j++)
 			{
+				// render bricks at the bottom of the screen, covering all of the bottom.
 				(*brick)->horizontalPosition = 0 + (16*j);
 				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
 
@@ -114,10 +116,16 @@ public:
 		koopa_behaviour->Create(system, *koopa, &game_objects);
 		RenderComponent * koopa_render = new RenderComponent();
 		koopa_render->Create(system, *koopa, &game_objects, "data/bmps/frame38.bmp");
+		CollideComponent * map_collider = new CollideComponent();
+		map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
+		CollideComponent * brick_collider = new CollideComponent();
+		brick_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &bricks);
 
 		(*koopa)->Create();
 		(*koopa)->AddComponent(koopa_behaviour);
 		(*koopa)->AddRenderComponent(koopa_render);
+		(*koopa)->AddComponent(map_collider);
+		(*koopa)->AddComponent(brick_collider);
 		(*koopa)->AddReceiver(this);
 		game_objects.insert(*koopa);
 		}

@@ -7,7 +7,6 @@ public:
 
 	int lives;	// it's game over when goes below zero 
 	int hits = 0;
-	bool onGround;
 
 	virtual ~Player() { SDL_Log("Player::~Player"); }
 
@@ -23,12 +22,12 @@ public:
 		onGround = false;
 		if (m == HIT)
 		{
-			SDL_Log("Player::TopHit");
+			//SDL_Log("Player::TopHit");
 		}
 		if (m == SIDE_HIT) 
 		{
 			hits++;
-			SDL_Log("Player::SideHit! %d", hits);
+			//SDL_Log("Player::SideHit! %d", hits);
 			RemoveLife();
 
 			if (lives < 0)
@@ -37,7 +36,7 @@ public:
 		if (m == ON_MAP)
 		{
 			hits++;
-			SDL_Log("STANDING ON MAP %d", onGround);
+			//SDL_Log("STANDING ON MAP %d", onGround);
 			onGround = true;
 		}
 	}
@@ -69,20 +68,16 @@ public:
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
 	{
 		Component::Create(system, go, game_objects);
-
 		player = (Player*) go;
-
-
 	}
 
 	virtual void Init()
 	{
 		go->spriteWidth = 16;
 		go->spriteHeight = 21;
+
 		go->horizontalPosition = WORLD_WIDTH/2;
 		go->verticalPosition = 0;
-
-		
 		player_horizontal_position = go->horizontalPosition;
 
 		go->horizontalVelocity = 0;
@@ -90,7 +85,6 @@ public:
 
 		// Spawn facing right
 		go->direction = RIGHT;
-
 	}
 
 
@@ -191,7 +185,6 @@ public:
 	// physics depend on the time.
 	virtual void Update(float dt)
 	{
-		SDL_Log("%s", player->onGround ? "true" : "false");
 		AvancezLib::KeyStatus keys;
 		system->getKeyStatus(keys);
 		UpdatePhysics(dt);

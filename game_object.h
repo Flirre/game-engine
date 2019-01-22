@@ -23,6 +23,7 @@ public:
 
 	double horizontalVelocity;
 	double verticalVelocity;
+	bool onGround = false;
 
 	int spriteWidth;
 	int spriteHeight;

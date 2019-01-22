@@ -5,7 +5,8 @@ class Koopa : public GameObject
 {
 public:
 
-	int lives;	// it's game over when goes below zero 
+	int lives;
+	bool onGround;
 
 	virtual ~Koopa() { SDL_Log("Koopa::~Koopa"); }
 
@@ -18,18 +19,23 @@ public:
 
 	virtual void Receive(Message m)
 	{
+		onGround = false;
 		if (m == HIT)
 		{
-			SDL_Log("Koopa::Hit!");
+			//SDL_Log("Koopa::Hit!");
 			RemoveLife();
 			if (lives < 0) {
-				SDL_Log("Koopa:Ded!");
+				//SDL_Log("Koopa:Ded!");
 				this->enabled = false;
 			}
 		}
 		if (m == SIDE_HIT)
 		{
-			SDL_Log("Koopa::SIDESLAMMER");
+			//SDL_Log("Koopa::SIDESLAMMER");
+		}
+		if (m == ON_MAP)
+		{
+			onGround = true;
 		}
 
 	}
@@ -37,7 +43,7 @@ public:
 	void RemoveLife()
 	{
 		lives--;
-		SDL_Log("remaining lives %d", lives);
+		//SDL_Log("remaining lives %d", lives);
 	}
 };
 
@@ -64,8 +70,7 @@ public:
 		Component::Create(system, go, game_objects);
 
 		koopa = (Koopa*) go;
-		go->direction = RIGHT;
-		//sprite = system->createSprite("data/bmps/frame38.bmp");
+
 
 
 	}
@@ -84,7 +89,7 @@ public:
 		go->verticalVelocity = 0;
 
 		// Spawn facing right
-
+		go->direction = RIGHT;
 
 	}
 
@@ -96,7 +101,7 @@ public:
 		go->verticalPosition += go->verticalVelocity	 * dt;
 
 		// If above the ground, apply gravity
-		if (go->verticalPosition < GROUND_POSITION) {
+		if (go->verticalPosition < GROUND_POSITION && koopa->onGround) {
 			go->verticalVelocity -= GRAVITY * dt;
 		}
 	}
