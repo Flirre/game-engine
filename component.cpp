@@ -144,7 +144,9 @@ void CollideComponent::Update(float dt)
 					//	}
 					//	
 					//SDL_Log("helo %d", rand());
-					go->Receive(ON_MAP);
+					else {
+						go->Receive(ON_MAP);
+					}
 				}
 				else
 				{

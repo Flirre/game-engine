@@ -29,24 +29,34 @@ public:
 
 		// create pairs of x- and y-coordinates for placement of ledges.
 		{
-			ledge_coordinates.push_back(std::make_pair(0, 175));
-			ledge_coordinates.push_back(std::make_pair(32, 175));
-			ledge_coordinates.push_back(std::make_pair(65, 175));
+			// bottom left
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 175));
+
+			// bottom right
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 33, 175));
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 66, 175));
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 175));
 
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH / 2, 131));
-			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2)-33, 131));
-			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2) + 33, 131));
-			ledge_coordinates.push_back(std::make_pair((WORLD_WIDTH / 2) - 66, 131));
+			// middle 
+			ledge_coordinates.push_back(std::make_pair(165, 131));
+			ledge_coordinates.push_back(std::make_pair(132, 131));
+			ledge_coordinates.push_back(std::make_pair(99, 131));
+			ledge_coordinates.push_back(std::make_pair(66, 131));
 
+			// lower left single 
 			ledge_coordinates.push_back(std::make_pair(0, 140));
+
+			// lower right single 
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 140));
 
-			ledge_coordinates.push_back(std::make_pair(0, 87));
-			ledge_coordinates.push_back(std::make_pair(32, 87));
-			ledge_coordinates.push_back(std::make_pair(65, 87));
+			// top left
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 87));
+
+			// top right
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 87));
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-66, 87));
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 87));
