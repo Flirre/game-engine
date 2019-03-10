@@ -35,7 +35,7 @@ public:
 		if (m == ON_MAP)
 		{
 			hits++;
-			//SDL_Log("STANDING ON MAP %d", onGround);
+			verticalVelocity = 0;
 			onGround = true;
 		}
 	}
@@ -102,15 +102,11 @@ public:
 		go->horizontalPosition += go->horizontalVelocity * dt;
 		player_horizontal_position = go->horizontalPosition;
 		go->verticalPosition += go->verticalVelocity	 * dt;
-
 		// If above the ground, apply gravity
 		if (go->verticalPosition < GROUND_POSITION) {
 			go->verticalVelocity -= GRAVITY * dt;
 		}
-		if (player->onGround && go->verticalVelocity >= 0)
-		{
-			go->verticalVelocity = 0;
-		}
+
 	}
 
 	void CheckBounds() {
@@ -177,9 +173,7 @@ public:
 	}
 
 	void Jump() {
-		SDL_Log("%d", go->onGround);
 		if (go->onGround == true) {
-			//go->verticalPosition -= 1; // end ground collision for player.
 			go->verticalVelocity = -250.0f;
 			go->onGround = false;
 		}

@@ -59,8 +59,6 @@ bool boundingBoxCollision(GameObject* go, GameObject* go0)
 	double go0BottomEdge = go0->verticalPosition + go0->spriteHeight;
 	double go0TopEdge = go0->verticalPosition;
 
-	bool goDirectionUp = (go->verticalVelocity < 0) ? true : false;
-
 	bool go_Right_Of_go0 = (goLeftEdge > go0RightEdge) ? true : false;
 	bool go_Left_Of_go0 = (goRightEdge < go0LeftEdge) ? true : false;
 	bool go_Above_go0 = (goBottomEdge < go0TopEdge) ? true : false;
@@ -223,35 +221,24 @@ void ResolveCollision(GameObject* go, GameObject* go0, float dt)
 
 void CollideComponent::Update(float dt)
 {
-	bool collided = false;
-
 	for (auto i = 0; i < coll_objects->pool.size(); i++)
 	{
 		GameObject * go0 = coll_objects->pool[i];
 		if (go0->enabled) {
-			if (boundingBoxCollision(go, go0)) // check for any collision AABB or whatever
+			if (boundingBoxCollision(go, go0)) // check for any AABB collision
 			{
-				collided = true;
 				if (go0->map_object)
 				{
 					ResolveCollision(go, go0, dt);
-
 				}
 				else
 				{
 					SDL_Log("GAMO::VertPos=%d", go->verticalPosition);
 					SDL_Log("GAMO MAPO DIFF=%d", (go0->verticalPosition - go->verticalPosition));
-					go->Receive(MAP);
 					go->Receive(HIT);
 					go0->Receive(HIT);
 				}
 			}
 		}
-	}
-	// if no collision occured, GameObject can no longer be on ground.
-	if (!collided) 
-	{
-		SDL_Log("no coliision");
-		go->onGround = false;
 	}
 }
