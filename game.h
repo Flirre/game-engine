@@ -40,10 +40,10 @@ public:
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 175));
 
 			// middle 
-			//ledge_coordinates.push_back(std::make_pair(165, 131));
-			//ledge_coordinates.push_back(std::make_pair(132, 131));
-			//ledge_coordinates.push_back(std::make_pair(99, 161)); //99, 131
-			//ledge_coordinates.push_back(std::make_pair(66, 131));
+			ledge_coordinates.push_back(std::make_pair(165, 131));
+			ledge_coordinates.push_back(std::make_pair(132, 131));
+			ledge_coordinates.push_back(std::make_pair(99, 131));
+			ledge_coordinates.push_back(std::make_pair(66, 131));
 
 			// lower left single 
 			ledge_coordinates.push_back(std::make_pair(0, 140));
@@ -125,7 +125,7 @@ public:
 			game_objects.insert(player);
 		}
 
-		koopa_pool.Create(0);
+		koopa_pool.Create(1);
 		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++)
 		{
 		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
