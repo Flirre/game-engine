@@ -190,10 +190,12 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	case Left:
 		SDL_Log("Left");
 		correctedLocation.first = go0->horizontalPosition - go->spriteWidth - 1;
+		go->Receive(NOT_ON_MAP);
 		break;
 	case Right:
 		SDL_Log("Right");
 		correctedLocation.first = go0->horizontalPosition + go0->spriteWidth + 1;
+		go->Receive(NOT_ON_MAP);
 		break;
 	case Top:
 		SDL_Log("Top");
@@ -203,6 +205,7 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	case Bottom:
 		SDL_Log("Bottom");
 		correctedLocation.second = go0->verticalPosition + go0->spriteHeight + 1;
+		go->Receive(NOT_ON_MAP);
 		go->verticalVelocity = 0;
 	default:
 		break;

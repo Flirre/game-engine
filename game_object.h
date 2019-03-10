@@ -1,7 +1,7 @@
 // GameObject represents objects which moves are drawn
 #include <vector>
 
-enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG, SIDE_HIT, DIE, MAP, ON_MAP };
+enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG, SIDE_HIT, DIE, MAP, ON_MAP, NOT_ON_MAP };
 
 enum Direction { RIGHT, LEFT };
 

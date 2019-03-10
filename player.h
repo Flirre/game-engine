@@ -38,6 +38,10 @@ public:
 			verticalVelocity = 0;
 			onGround = true;
 		}
+		if (m == NOT_ON_MAP)
+		{
+			onGround = false;
+		}
 	}
 
 	void RemoveLife()
