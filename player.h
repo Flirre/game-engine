@@ -19,7 +19,6 @@ public:
 
 	virtual void Receive(Message m)
 	{
-		onGround = false;
 		if (m == HIT)
 		{
 			//SDL_Log("Player::TopHit");
@@ -76,12 +75,17 @@ public:
 		go->spriteWidth = 16;
 		go->spriteHeight = 21;
 
+		// if coll. detection doesn't work add prev. position and velocity for use with AABB col. resolution.
 		go->horizontalPosition = WORLD_WIDTH/2;
 		go->verticalPosition = 0;
 		player_horizontal_position = go->horizontalPosition;
+		go->prevHPos = go->horizontalPosition;
+		go->prevVPos = go->verticalPosition;
 
 		go->horizontalVelocity = 0;
 		go->verticalVelocity = 0;
+		go->prevHVel = 0;
+		go->prevVVel = 0;
 
 		// Spawn facing right
 		go->direction = RIGHT;
@@ -90,12 +94,17 @@ public:
 
 	// Basic euler integration
 	void UpdatePhysics(float dt) {
+		go->prevHPos = go->horizontalPosition;
+		go->prevVPos = go->verticalPosition;
+		go->prevHVel = go->horizontalVelocity;
+		go->prevVVel = go->verticalVelocity;
+
 		go->horizontalPosition += go->horizontalVelocity * dt;
 		player_horizontal_position = go->horizontalPosition;
 		go->verticalPosition += go->verticalVelocity	 * dt;
 
 		// If above the ground, apply gravity
-		if (go->verticalPosition < GROUND_POSITION && !(player->onGround)) {
+		if (go->verticalPosition < GROUND_POSITION) {
 			go->verticalVelocity -= GRAVITY * dt;
 		}
 		if (player->onGround && go->verticalVelocity >= 0)
@@ -168,9 +177,11 @@ public:
 	}
 
 	void Jump() {
-		if (player->onGround == true) {
+		SDL_Log("%d", go->onGround);
+		if (go->onGround == true) {
+			//go->verticalPosition -= 1; // end ground collision for player.
 			go->verticalVelocity = -250.0f;
-			player->onGround = false;
+			go->onGround = false;
 		}
 	}
 
@@ -190,7 +201,6 @@ public:
 		UpdatePhysics(dt);
 		UpdateMovement(keys);
 		CheckBounds();
-		player->onGround = false;
 	}
 
 };

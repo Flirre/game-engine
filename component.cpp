@@ -1,6 +1,8 @@
 #include "component.h"
 #include "game_object.h"
 #include "avancezlib.h"
+#include "windows.h"
+#include "winnt.h"
 
 void Component::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects)
 {
@@ -44,32 +46,9 @@ void CollideComponent::Create(AvancezLib* system, GameObject * go, std::set<Game
 	this->coll_objects = coll_objects;
 }
 
-bool collisionAbove(GameObject* go, GameObject* go0) {
-	return ((go0->verticalPosition > go->verticalPosition) &&
-		((go0->verticalPosition - go->verticalPosition) <= (go->spriteHeight)) &&
-		((go0->verticalPosition - go->verticalPosition) >= 0));
-}
-
-bool collisionBelow(GameObject* go, GameObject* go0) {
-	return ((go0->verticalPosition < go->verticalPosition) &&
-		((go->verticalPosition - go0->verticalPosition) <= (go0->spriteHeight)) &&
-		((go->verticalPosition - go0->verticalPosition) >= 0));
-}
-
-bool collisionLeft(GameObject* go, GameObject* go0) {
-	return ((go0->horizontalPosition < go->horizontalPosition) &&
-		((go0->horizontalPosition - go->horizontalPosition) >= -go0->spriteWidth) &&
-		((go0->horizontalPosition - go->horizontalPosition) <= 0));
-}
-
-bool collisionRight(GameObject* go, GameObject* go0) {
-	return ((go0->horizontalPosition > go->horizontalPosition) &&
-		((go->horizontalPosition - go0->horizontalPosition) >= -go->spriteWidth) &&
-		((go->horizontalPosition - go0->horizontalPosition) <= 0));
-}
-
 bool boundingBoxCollision(GameObject* go, GameObject* go0)
-{
+{	
+
 	double goLeftEdge = go->horizontalPosition;
 	double goRightEdge = go->horizontalPosition + go->spriteWidth;
 	double goBottomEdge = go->verticalPosition + go->spriteHeight;
@@ -82,71 +61,181 @@ bool boundingBoxCollision(GameObject* go, GameObject* go0)
 
 	bool goDirectionUp = (go->verticalVelocity < 0) ? true : false;
 
-	return((goBottomEdge > go0TopEdge) && (goTopEdge < go0BottomEdge) && (goLeftEdge < go0RightEdge) && (goRightEdge > go0LeftEdge));
+	bool go_Right_Of_go0 = (goLeftEdge > go0RightEdge) ? true : false;
+	bool go_Left_Of_go0 = (goRightEdge < go0LeftEdge) ? true : false;
+	bool go_Above_go0 = (goBottomEdge < go0TopEdge) ? true : false;
+	bool go_Below_go0 = (goTopEdge > go0BottomEdge) ? true : false;
+	bool colliding = (!(go_Right_Of_go0 || go_Left_Of_go0 || go_Above_go0 || go_Below_go0)) ? true : false;
+	return (colliding);
 }
+
+enum CollisionSide
+{
+	None = 0,
+	Top = 1,
+	Bottom = 2,
+	Left = 4,
+	Right = 8
+};
+DEFINE_ENUM_FLAG_OPERATORS(CollisionSide)
+
+CollisionSide GetCollisionSideFromSlopeComparison(CollisionSide potentialSides, double velocitySlope, double nearestCornerSlope)
+{
+	if ((potentialSides & Top) == Top)
+	{
+		if ((potentialSides & Left) == Left)
+			return velocitySlope < nearestCornerSlope ? Top : Left;
+		if ((potentialSides & Right) == Right)
+			return velocitySlope > nearestCornerSlope ? Top : Right;
+	}
+	if ((potentialSides & Bottom) == Bottom)
+	{
+		if ((potentialSides & Left) == Left)
+			return velocitySlope > nearestCornerSlope ? Bottom : Left;
+		if ((potentialSides & Right) == Right)
+			return velocitySlope < nearestCornerSlope ? Bottom : Right;
+	}
+	// method should never end up here.
+	return None;
+}
+
+CollisionSide GetCollisionSide(GameObject* go, GameObject* go0, float dt) 
+{
+	double goLeft = go->prevHPos;
+	double goRight = go->prevHPos + go->spriteWidth;
+	double goBottom = go->prevVPos + go->spriteHeight;
+	double goTop = go->prevVPos;
+	double goXVel = go->horizontalVelocity;
+	double goYVel = go->verticalVelocity;
+
+	double go0Left = go0->horizontalPosition;
+	double go0Right = go0->horizontalPosition + go0->spriteWidth;
+	double go0Bottom = go0->verticalPosition + go0->spriteHeight;
+	double go0Top = go0->verticalPosition;
+	
+	double cornerSlopeRise = 0;
+	double cornerSlopeRun = 0;
+
+	double velocitySlope = goYVel / goXVel;
+
+	CollisionSide potentialCollisionSide = None;
+	if (goRight <= go0Left)
+	{
+		potentialCollisionSide |= Left;
+
+		cornerSlopeRun = go0Left - goRight;
+
+		if (goBottom <= go0Top)
+		{
+			potentialCollisionSide |= Top;
+			cornerSlopeRise = go0Top - goBottom;
+		}
+		if (goTop >= go0Bottom)
+		{
+			potentialCollisionSide |= Bottom;
+			cornerSlopeRise = go0Bottom - goTop;
+		}
+		else
+		{
+			return Left;
+		}
+	}
+	if (goLeft >= go0Right)
+	{
+		potentialCollisionSide |= Right;
+		cornerSlopeRun = goLeft - go0Right;
+
+		if (goBottom <= go0Top)
+		{
+			potentialCollisionSide |= Top;
+			cornerSlopeRise = goBottom - go0Top;
+		}
+		if (goTop >= go0Bottom)
+		{
+			potentialCollisionSide |= Bottom;
+			cornerSlopeRise = goTop - go0Bottom;
+		}
+		else
+		{
+			return Right;
+		}
+	}
+	else 
+	{
+		// Did not collide on either left or right side.
+		if (goBottom <= go0Top)
+		{
+			return Top;
+		}
+		if (goTop >= go0Bottom)
+		{
+			return Bottom;
+		}
+		else
+		{
+			// None is returned because go was already colliding with go0.
+			return None;
+		}
+	}
+	////Corner case; might have collided with more than one side
+	//Compare slopes to see which side was collided with
+	return GetCollisionSideFromSlopeComparison(potentialCollisionSide, velocitySlope, cornerSlopeRise / cornerSlopeRun);
+}
+
+
+
+std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, CollisionSide collisionSide)
+{
+	std::pair<double, double> correctedLocation = std::make_pair(go->horizontalPosition, go->verticalPosition);
+	switch (collisionSide)
+	{
+	case Left:
+		SDL_Log("Left");
+		correctedLocation.first = go0->horizontalPosition - go->spriteWidth - 1;
+		break;
+	case Right:
+		SDL_Log("Right");
+		correctedLocation.first = go0->horizontalPosition + go0->spriteWidth + 1;
+		break;
+	case Top:
+		SDL_Log("Top");
+		correctedLocation.second = go0->verticalPosition - go->spriteHeight - 1;
+		go->Receive(ON_MAP);
+		break;
+	case Bottom:
+		SDL_Log("Bottom");
+		correctedLocation.second = go0->verticalPosition + go0->spriteHeight + 1;
+		go->verticalVelocity = 0;
+	default:
+		break;
+	}
+	return correctedLocation;
+}
+
+void ResolveCollision(GameObject* go, GameObject* go0, float dt)
+{
+	std::pair < double, double> newLocation = GetCorrectedLocation(go, go0, GetCollisionSide(go, go0, dt));
+	go->horizontalPosition = newLocation.first;
+	go->verticalPosition = newLocation.second;
+}
+
 
 
 void CollideComponent::Update(float dt)
 {
-	bool goDirectionUp = (go->verticalVelocity < 0) ? true : false;
-	double goLeftEdge = go->horizontalPosition;
-	double goRightEdge = go->horizontalPosition + go->spriteWidth;
-	double goBottomEdge = go->verticalPosition + go->spriteHeight;
-	double goTopEdge = go->verticalPosition;
-	bool xMovement = (go->horizontalVelocity != 0) ? true : false;
+	bool collided = false;
 
 	for (auto i = 0; i < coll_objects->pool.size(); i++)
 	{
 		GameObject * go0 = coll_objects->pool[i];
 		if (go0->enabled) {
-			double go0LeftEdge = go0->horizontalPosition;
-			double go0RightEdge = go0->horizontalPosition + go0->spriteWidth;
-			double go0BottomEdge = go0->verticalPosition + go0->spriteHeight;
-			double go0TopEdge = go0->verticalPosition;
-
-
-
 			if (boundingBoxCollision(go, go0)) // check for any collision AABB or whatever
 			{
+				collided = true;
 				if (go0->map_object)
-					{
+				{
+					ResolveCollision(go, go0, dt);
 
-					if (xMovement && !(go->onGround) && ((goRightEdge - go0LeftEdge) > 0.1) && ((goRightEdge - go0LeftEdge) < 1))
-					{
-						SDL_Log("____________________________");
-						SDL_Log("player bottom %f | map top %f | diff %f", goBottomEdge, go0TopEdge, goBottomEdge - go0TopEdge);
-						SDL_Log("player top %f | map bottom %f | diff %f", goTopEdge, go0BottomEdge, goTopEdge - go0BottomEdge);
-						SDL_Log("player left %f | map right %f | diff %f", goLeftEdge, go0RightEdge, goLeftEdge - go0RightEdge);
-						SDL_Log("player right %f | map left %f | diff %f", goRightEdge, go0LeftEdge, goRightEdge - go0LeftEdge);
-						SDL_Log("____________________________");
-						go->horizontalVelocity = 0;
-						go->horizontalPosition = go->horizontalPosition - (goRightEdge - go0LeftEdge);
-						//SDL_Log("goHoz %f", go->horizontalVelocity);
-						//SDL_Log("goVert %f", go->verticalVelocity);
-						////go->horizontalPosition -= go0LeftEdge/200;
-						//go->horizontalPosition -= (goRightEdge - goLeftEdge);
-						////SDL_Log("player bottom %f | map top %f | diff %f", goBottomEdge, go0TopEdge, goBottomEdge - go0TopEdge);
-						////SDL_Log("player top %f | map bottom %f | diff %f", goTopEdge, go0BottomEdge, goTopEdge - go0BottomEdge);
-						////SDL_Log("player right %f | map left %f | diff %f", goRightEdge, go0LeftEdge, goRightEdge - go0LeftEdge);
-						//return;
-					}
-					//	if ( && goDirectionUp) // collision above player
-					//	{
-					//		go->verticalVelocity /= 2;
-					//	}
-					//	if () // collision below player / landing on ground
-					//	{
-					//		go->Receive(ON_MAP);
-					//	}
-					//	if () // check for collision on the sides, stopping the player from overlapping map objects.
-					//	{
-
-					//	}
-					//	
-					//SDL_Log("helo %d", rand());
-					else {
-						go->Receive(ON_MAP);
-					}
 				}
 				else
 				{
@@ -158,5 +247,11 @@ void CollideComponent::Update(float dt)
 				}
 			}
 		}
+	}
+	// if no collision occured, GameObject can no longer be on ground.
+	if (!collided) 
+	{
+		SDL_Log("no coliision");
+		go->onGround = false;
 	}
 }

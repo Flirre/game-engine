@@ -25,6 +25,11 @@ public:
 	double verticalVelocity;
 	bool onGround = false;
 
+	double prevHPos;
+	double prevVPos;
+	double prevHVel;
+	double prevVVel;
+
 	int spriteWidth;
 	int spriteHeight;
 

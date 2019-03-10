@@ -40,10 +40,10 @@ public:
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 175));
 
 			// middle 
-			ledge_coordinates.push_back(std::make_pair(165, 131));
-			ledge_coordinates.push_back(std::make_pair(132, 131));
-			ledge_coordinates.push_back(std::make_pair(99, 131));
-			ledge_coordinates.push_back(std::make_pair(66, 131));
+			//ledge_coordinates.push_back(std::make_pair(165, 131));
+			//ledge_coordinates.push_back(std::make_pair(132, 131));
+			//ledge_coordinates.push_back(std::make_pair(99, 161)); //99, 131
+			//ledge_coordinates.push_back(std::make_pair(66, 131));
 
 			// lower left single 
 			ledge_coordinates.push_back(std::make_pair(0, 140));
@@ -62,39 +62,48 @@ public:
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 87));
 		}
 
-		map.Create(ledge_coordinates.size());
+		int i = 0;
+		int j = 0;
+		SDL_Log("ledge - %d", ledge_coordinates.size());
+		int nr_of_ledges = ledge_coordinates.size();
+		map.Create(nr_of_ledges + 16);
 		{
+			auto map_iterator = map.pool.begin();
 			// create ledges that players and enemies walk on
-			for (auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
+
+			for (map_iterator; i < nr_of_ledges; map_iterator++, i++)
 			{
-				(*map_object)->horizontalPosition = ledge_coordinates.back().first;
-				(*map_object)->verticalPosition = ledge_coordinates.back().second;
+				(*map_iterator)->horizontalPosition = ledge_coordinates.back().first;
+				(*map_iterator)->verticalPosition = ledge_coordinates.back().second;
 				ledge_coordinates.pop_back();
 				RenderComponent * ledge_render = new RenderComponent();
-				ledge_render->Create(system, *map_object, &game_objects, "data/bmps/board/frame23.bmp");
-				(*map_object)->Create();
-				(*map_object)->AddRenderComponent(ledge_render);
-				(*map_object)->AddReceiver(this);
-				game_objects.insert(*map_object);
+				ledge_render->Create(system, *map_iterator, &game_objects, "data/bmps/board/frame23.bmp");
+				(*map_iterator)->Create();
+				(*map_iterator)->AddRenderComponent(ledge_render);
+				(*map_iterator)->AddReceiver(this);
+				game_objects.insert(*map_iterator);
 			}
 
-			// create bricks at the bottom of the map
-			int j = 0;
-			bricks.Create(16);
-			for (auto brick = bricks.pool.begin(); brick != bricks.pool.end(); brick++, j++)
+			/* create bricks at the bottom of the map
+			 for loop starts where ledges end.
+			 16 bricks is equal to full width of map.*/
+			for (auto brick = map_iterator; brick != map.pool.end(); brick++, j++)
 			{
 				// render bricks at the bottom of the screen, covering all of the bottom.
-				(*brick)->horizontalPosition = 0 + (16*j);
+				(*brick)->horizontalPosition = 0 + (16 * j);
 				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
 
-				RenderComponent * bridge_render = new RenderComponent();
-				bridge_render->Create(system, (*brick), &game_objects, "data/bmps/board/frame0.bmp");
+				RenderComponent * brick_render = new RenderComponent();
+				brick_render->Create(system, (*brick), &game_objects, "data/bmps/board/frame0.bmp");
 				(*brick)->Create();
-				(*brick)->AddRenderComponent(bridge_render);
+				(*brick)->AddRenderComponent(brick_render);
 				(*brick)->AddReceiver(this);
 				game_objects.insert(*brick);
 			}
 		}
+
+
+
 
 		{
 			player = new Player();
@@ -106,20 +115,17 @@ public:
 			player_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
 			CollideComponent * map_collider = new CollideComponent();
 			map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
-			CollideComponent * brick_collider = new CollideComponent();
-			brick_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &bricks);
 
 			player->Create();
 			player->AddComponent(player_behaviour);
 			player->AddComponent(player_collider);
 			player->AddComponent(map_collider);
-			player->AddComponent(brick_collider);
 			player->AddRenderComponent(player_render);
 			player->AddReceiver(this);
 			game_objects.insert(player);
 		}
 
-		koopa_pool.Create(1);
+		koopa_pool.Create(0);
 		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++)
 		{
 		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
@@ -149,11 +155,6 @@ public:
 		for (auto map_object = map.pool.begin(); map_object != map.pool.end(); map_object++)
 		{
 				(*map_object)->Init();
-		}
-
-		for (auto brick = bricks.pool.begin(); brick != bricks.pool.end(); brick++)
-		{
-			(*brick)->Init();
 		}
 
 		player->Init();
