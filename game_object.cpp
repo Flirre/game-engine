@@ -24,6 +24,11 @@ void GameObject::SetSprite(Sprite * sprite) {
 	renderComponent->SetSprite(sprite);
 }
 
+std::vector<Sprite*> GameObject::GetSprites()
+{
+	return renderComponent->GetSprites();
+}
+
 
 void GameObject::Init()
 {

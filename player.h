@@ -37,10 +37,15 @@ public:
 			hits++;
 			verticalVelocity = 0;
 			onGround = true;
+			SetSprite(GetSprites().at(0));
 		}
 		if (m == NOT_ON_MAP)
 		{
 			onGround = false;
+		}
+		if (m == JUMP) 
+		{
+			SetSprite(GetSprites().at(1));
 		}
 	}
 
@@ -51,11 +56,9 @@ public:
 	}
 };
 
-
-class PlayerBehaviourComponent : public Component
+class PlayerPhysicsComponent : public Component
 {
-
-private:
+private: 
 	Player * player;
 
 	bool is_walking_left = false;
@@ -63,10 +66,8 @@ private:
 
 	bool space_released = true;
 
-	Sprite * sprite;
-
 public:
-	virtual ~PlayerBehaviourComponent() {}
+	virtual ~PlayerPhysicsComponent() {}
 
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
 	{
@@ -79,7 +80,6 @@ public:
 		go->spriteWidth = 16;
 		go->spriteHeight = 21;
 
-		// if coll. detection doesn't work add prev. position and velocity for use with AABB col. resolution.
 		go->horizontalPosition = WORLD_WIDTH/2;
 		go->verticalPosition = 0;
 		player_horizontal_position = go->horizontalPosition;
@@ -90,27 +90,6 @@ public:
 		go->verticalVelocity = 0;
 		go->prevHVel = 0;
 		go->prevVVel = 0;
-
-		// Spawn facing right
-		go->direction = RIGHT;
-	}
-
-
-	// Basic euler integration
-	void UpdatePhysics(float dt) {
-		go->prevHPos = go->horizontalPosition;
-		go->prevVPos = go->verticalPosition;
-		go->prevHVel = go->horizontalVelocity;
-		go->prevVVel = go->verticalVelocity;
-
-		go->horizontalPosition += go->horizontalVelocity * dt;
-		player_horizontal_position = go->horizontalPosition;
-		go->verticalPosition += go->verticalVelocity	 * dt;
-		// If above the ground, apply gravity
-		if (go->verticalPosition < GROUND_POSITION) {
-			go->verticalVelocity -= GRAVITY * dt;
-		}
-
 	}
 
 	void CheckBounds() {
@@ -125,8 +104,95 @@ public:
 			go->verticalPosition = GROUND_POSITION;
 	}
 
-	// Apply movement based on input keys
-	void UpdateMovement(AvancezLib::KeyStatus keys) {
+	virtual void UpdatePosition(float dt)
+	{
+		go->prevHPos = go->horizontalPosition;
+		go->prevVPos = go->verticalPosition;
+		go->prevHVel = go->horizontalVelocity;
+		go->prevVVel = go->verticalVelocity;
+
+		go->horizontalPosition += go->horizontalVelocity * dt;
+		player_horizontal_position = go->horizontalPosition;
+		go->verticalPosition += go->verticalVelocity	 * dt;
+		// If above the ground, apply gravity
+		if (go->verticalPosition < GROUND_POSITION) {
+			go->verticalVelocity -= GRAVITY * dt;
+		}
+	}
+
+	virtual void Update(float dt)
+	{
+		UpdatePosition(dt);
+		CheckBounds();
+	}
+
+};
+
+class PlayerInputComponent : public Component
+{
+private: Player * player;
+
+		 bool is_walking_left = false;
+		 bool is_walking_right = false;
+
+		 bool space_released = true;
+
+public: 
+	virtual ~PlayerInputComponent() {}
+	
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
+	{
+		Component::Create(system, go, game_objects);
+		player = (Player*)go;
+	}
+
+	virtual void Init()
+	{
+		// Spawn facing right
+		go->direction = RIGHT;
+	}
+
+	void WalkLeft()
+	{
+		is_walking_left = true;
+		go->direction = LEFT;
+
+		if (abs(go->horizontalVelocity) < PLAYER_SPEED)
+		{
+			go->horizontalVelocity = -PLAYER_SPEED;
+		}
+	}
+
+	void WalkRight()
+	{
+		is_walking_right = true;
+		go->direction = RIGHT;
+
+		if (abs(go->horizontalVelocity) < PLAYER_SPEED)
+		{
+			go->horizontalVelocity = PLAYER_SPEED;
+		}
+	}
+
+	void Jump()
+	{
+		if (go->onGround == true)
+		{
+			go->verticalVelocity = -250.0f;
+			go->onGround = false;
+			go->Receive(JUMP);
+		}
+	}
+
+	void Stop()
+	{
+		go->horizontalVelocity = 0;
+		is_walking_left = false;
+		is_walking_right = false;
+	}
+
+	void UpdateMovement(AvancezLib::KeyStatus keys)
+	{
 		if (keys.left) {
 			WalkLeft();
 		}
@@ -149,56 +215,56 @@ public:
 		}
 	}
 
-	void WalkLeft() {
-		// Change sprite first time and send event to AI
-		if (!is_walking_left) {
-		}
-		is_walking_left = true;
-
-		go->direction = LEFT;
-
-		if (abs(go->horizontalVelocity) < PLAYER_SPEED) {
-			go->horizontalVelocity = -PLAYER_SPEED;
-		}
-
-	}
-
-	void WalkRight() {
-		// Change sprite first time
-		if (!is_walking_right) {
-		}
-		is_walking_right = true;
-
-		go->direction = RIGHT;
-
-		if (abs(go->horizontalVelocity) < PLAYER_SPEED) {
-			go->horizontalVelocity = PLAYER_SPEED;
-		}
-	}
-
-	void Jump() {
-		if (go->onGround == true) {
-			go->verticalVelocity = -250.0f;
-			go->onGround = false;
-		}
-	}
-
-	void Stop() {
-		go->horizontalVelocity = 0;
-		is_walking_left = false;
-		is_walking_right = false;
-	}
-
-
-	// Update the palyer
-	// physics depend on the time.
 	virtual void Update(float dt)
 	{
 		AvancezLib::KeyStatus keys;
 		system->getKeyStatus(keys);
-		UpdatePhysics(dt);
 		UpdateMovement(keys);
-		CheckBounds();
+	}
+};
+class PlayerBehaviourComponent : public Component
+{
+
+private:
+	Player * player;
+
+	bool is_walking_left = false;
+	bool is_walking_right = false;
+
+	bool space_released = true;
+
+	Sprite * idle_sprite;
+	Sprite * jump_sprite;
+
+public:
+	virtual ~PlayerBehaviourComponent() {}
+
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
+	{
+		Component::Create(system, go, game_objects);
+		player = (Player*) go;
+	}
+
+	virtual void Init()
+	{
+	}
+
+	void Jump() 
+	{
+		//if (go->onGround == true) {
+		//	go->verticalVelocity = -250.0f;
+		//	go->onGround = false;
+		//	go->SetSprite(jump_sprite);
+		//}
+	}
+
+
+
+	// Update the player
+	// physics depend on the time.
+	virtual void Update(float dt)
+	{
+
 	}
 
 };

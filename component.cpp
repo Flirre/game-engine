@@ -11,11 +11,11 @@ void Component::Create(AvancezLib * system, GameObject * go, std::set<GameObject
 	this->game_objects = game_objects;
 }
 
-void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects, const char * sprite_name)
+void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects, std::vector<Sprite*> sprites)
 {
 	Component::Create(system, go, game_objects);
-
-	sprite = system->createSprite(sprite_name);
+	this->sprites = sprites;
+	sprite = sprites.at(0);
 }
 
 void RenderComponent::SetSprite(Sprite * s) {

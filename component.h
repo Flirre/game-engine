@@ -27,15 +27,17 @@ public:
 class RenderComponent : public Component
 {
 	Sprite* sprite;
+	std::vector<Sprite*> sprites;
 
 public:
 
-	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, const char * sprite_name);
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, std::vector<Sprite*> sprites);
 	virtual void Update(float dt);
 	virtual void Destroy();
 	virtual void SetSprite(Sprite * sprite);
 
 	Sprite * GetSprite() { return sprite; }
+	std::vector<Sprite*> GetSprites() { return sprites; }
 };
 
 

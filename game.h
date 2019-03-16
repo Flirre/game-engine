@@ -76,8 +76,10 @@ public:
 				(*map_iterator)->horizontalPosition = ledge_coordinates.back().first;
 				(*map_iterator)->verticalPosition = ledge_coordinates.back().second;
 				ledge_coordinates.pop_back();
+				std::vector<Sprite*> sprites;
+				sprites.push_back(system->createSprite("data/bmps/board/frame23.bmp"));
 				RenderComponent * ledge_render = new RenderComponent();
-				ledge_render->Create(system, *map_iterator, &game_objects, "data/bmps/board/frame23.bmp");
+				ledge_render->Create(system, *map_iterator, &game_objects, sprites);
 				(*map_iterator)->Create();
 				(*map_iterator)->AddRenderComponent(ledge_render);
 				(*map_iterator)->AddReceiver(this);
@@ -94,7 +96,9 @@ public:
 				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
 
 				RenderComponent * brick_render = new RenderComponent();
-				brick_render->Create(system, (*brick), &game_objects, "data/bmps/board/frame0.bmp");
+				std::vector<Sprite*> sprites;
+				sprites.push_back(system->createSprite("data/bmps/board/frame0.bmp"));
+				brick_render->Create(system, (*brick), &game_objects, sprites);
 				(*brick)->Create();
 				(*brick)->AddRenderComponent(brick_render);
 				(*brick)->AddReceiver(this);
@@ -109,8 +113,17 @@ public:
 			player = new Player();
 			PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
 			player_behaviour->Create(system, player, &game_objects);
+			PlayerPhysicsComponent * player_physics = new PlayerPhysicsComponent();
+			player_physics->Create(system, player, &game_objects);
+			PlayerInputComponent * player_input = new PlayerInputComponent();
+			player_input->Create(system, player, &game_objects);
+			std::vector<Sprite*> sprites;
+			Sprite* idle_sprite = system->createSprite("data/bmps/frame6.bmp");
+			Sprite* jump_sprite = system->createSprite("data/bmps/frame7.bmp");
+			sprites.push_back(idle_sprite);
+			sprites.push_back(jump_sprite);
 			RenderComponent * player_render = new RenderComponent();
-			player_render->Create(system, player, &game_objects, "data/bmps/frame6.bmp");
+			player_render->Create(system, player, &game_objects, sprites);
 			CollideComponent * player_collider = new CollideComponent();
 			player_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
 			CollideComponent * map_collider = new CollideComponent();
@@ -118,6 +131,8 @@ public:
 
 			player->Create();
 			player->AddComponent(player_behaviour);
+			player->AddComponent(player_physics);
+			player->AddComponent(player_input);
 			player->AddComponent(player_collider);
 			player->AddComponent(map_collider);
 			player->AddRenderComponent(player_render);
@@ -130,8 +145,10 @@ public:
 		{
 		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
 		koopa_behaviour->Create(system, *koopa, &game_objects);
+		std::vector<Sprite*> sprites;
+		sprites.push_back(system->createSprite("data/bmps/board/frame38.bmp"));
 		RenderComponent * koopa_render = new RenderComponent();
-		koopa_render->Create(system, *koopa, &game_objects, "data/bmps/frame38.bmp");
+		koopa_render->Create(system, *koopa, &game_objects, sprites);
 		CollideComponent * map_collider = new CollideComponent();
 		map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
 		CollideComponent * brick_collider = new CollideComponent();
