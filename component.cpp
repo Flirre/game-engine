@@ -3,6 +3,7 @@
 #include "avancezlib.h"
 #include "windows.h"
 #include "winnt.h"
+class AvancezLib;
 
 void Component::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects)
 {
@@ -37,6 +38,149 @@ void RenderComponent::Destroy()
 	if (sprite != NULL)
 		sprite->destroy();
 	sprite = NULL;
+}
+
+void PhysicsComponent::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects, float horizontalPosition, float verticalPosition, int spriteWidth, int spriteHeight, unsigned int WORLD_WIDTH, unsigned int WORLD_HEIGHT, float GRAVITY, float speed)
+{
+	Component::Create(system, go, game_objects);
+	this->WORLD_WIDTH = WORLD_WIDTH;
+	this->WORLD_HEIGHT = WORLD_HEIGHT;
+	this->GRAVITY = GRAVITY;
+	this->SPEED = speed;
+
+	go->spriteWidth = spriteWidth;
+	go->spriteHeight = spriteHeight;
+
+	go->horizontalPosition = horizontalPosition;
+	go->verticalPosition = verticalPosition;
+
+	go->prevHPos = go->horizontalPosition;
+	go->prevVPos = go->verticalPosition;
+
+	go->horizontalVelocity = 0;
+	go->verticalVelocity = 0;
+	go->prevHVel = 0;
+	go->prevVVel = 0;
+	
+
+}
+
+void PhysicsComponent::CheckBounds(unsigned int WORLD_WIDTH, GameObject* go) {
+	const float GROUND_POSITION = 203.0f;
+
+	if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth))
+		go->horizontalPosition = 0;
+
+	if (go->horizontalPosition < 0)
+		go->horizontalPosition = WORLD_WIDTH - go->spriteWidth;
+
+	// Ground
+	if (go->verticalPosition > GROUND_POSITION)
+		go->verticalPosition = GROUND_POSITION;
+}
+
+void PhysicsComponent::UpdatePosition(float dt, GameObject* go, float GRAVITY)
+{
+	const float GROUND_POSITION = 203.0f;
+
+	go->prevHPos = go->horizontalPosition;
+	go->prevVPos = go->verticalPosition;
+	go->prevHVel = go->horizontalVelocity;
+	go->prevVVel = go->verticalVelocity;
+
+	go->horizontalPosition += go->horizontalVelocity * dt;
+	go->verticalPosition += go->verticalVelocity	 * dt;
+	// If above the ground, apply gravity
+	if (go->verticalPosition < GROUND_POSITION) {
+		go->verticalVelocity -= GRAVITY * dt;
+	}
+}
+
+void PhysicsComponent::Update(float dt)
+{
+	UpdatePosition(dt, go, GRAVITY);
+	CheckBounds(WORLD_WIDTH, go);
+}
+
+void InputComponent::Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED)
+{
+	Component::Create(system, go, game_objects);
+	go->direction = RIGHT;
+	is_walking_left = false;
+	is_walking_right = false;
+	space_released = true;
+	goSPEED = SPEED;
+}
+
+void InputComponent::WalkLeft()
+{
+	is_walking_left = true;
+	go->direction = LEFT;
+	SDL_Log("%f", goSPEED);
+
+	if (abs(go->horizontalVelocity) < goSPEED)
+	{
+		go->horizontalVelocity = -goSPEED;
+	}
+}
+
+void InputComponent::WalkRight()
+{
+	is_walking_right = true;
+	go->direction = RIGHT;
+
+	if (abs(go->horizontalVelocity) < goSPEED)
+	{
+		go->horizontalVelocity = goSPEED;
+	}
+}
+
+void InputComponent::Jump()
+{
+	if (go->onGround == true)
+	{
+		go->verticalVelocity = -250.0f;
+		go->onGround = false;
+		go->Receive(JUMP);
+	}
+}
+
+void InputComponent::UpdateMovement(AvancezLib::KeyStatus keys)
+{
+	if (keys.left) {
+		WalkLeft();
+	}
+
+	if (keys.right) {
+		WalkRight();
+	}
+
+	if ((is_walking_right && keys.right == false) || (is_walking_left && keys.left == false)) {
+		Stop();
+	}
+
+	if (keys.space && space_released) {
+		space_released = false;
+		Jump();
+	}
+
+	if (!keys.space) {
+		space_released = true;
+	}
+}
+
+void InputComponent::Stop()
+{
+	go->horizontalVelocity = 0;
+	is_walking_left = false;
+	is_walking_right = false;
+}
+
+void InputComponent::Update(float dt)
+{
+	AvancezLib::KeyStatus keys;
+	system->getKeyStatus(keys);
+	UpdateMovement(keys);
 }
 
 

@@ -1,5 +1,6 @@
 #include <set>
 #include "object_pool.h"
+#include "avancezlib.h"
 
 class GameObject;
 class AvancezLib;
@@ -38,6 +39,39 @@ public:
 
 	Sprite * GetSprite() { return sprite; }
 	std::vector<Sprite*> GetSprites() { return sprites; }
+};
+
+class PhysicsComponent : public Component
+{
+	unsigned int WORLD_WIDTH;
+	unsigned int WORLD_HEIGHT;
+	float GRAVITY;
+	float SPEED;
+
+public: 
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float horizontalPosition, float verticalPosition, int spriteWidth, int spriteHeight, unsigned int WORLD_WIDTH, unsigned int WORLD_HEIGHT, float GRAVITY, float speed);
+	virtual void Update(float dt);
+
+	virtual void CheckBounds(unsigned int WORLD_WIDTH, GameObject* go);
+	virtual void UpdatePosition(float dt, GameObject* go, float GRAVITY);
+};
+
+class InputComponent : public Component
+{
+	bool is_walking_left;
+	bool is_walking_right;
+	bool space_released;
+	float goSPEED;
+
+public:
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED);
+	virtual void Update(float dt);
+
+	virtual void WalkLeft();
+	virtual void WalkRight();
+	virtual void Jump();
+	virtual void Stop();
+	virtual void UpdateMovement(AvancezLib::KeyStatus keys);
 };
 
 

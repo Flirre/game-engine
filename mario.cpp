@@ -29,8 +29,6 @@ const float			BOMB_SPEED = 120.0f;
 
 const float			GROUND_POSITION = 203.0f;
 
-float player_horizontal_position = 0.0f;
-
 float game_speed = 1.f;
 
 

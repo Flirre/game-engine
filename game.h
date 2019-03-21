@@ -111,12 +111,10 @@ public:
 
 		{
 			player = new Player();
-			PlayerBehaviourComponent * player_behaviour = new PlayerBehaviourComponent();
-			player_behaviour->Create(system, player, &game_objects);
-			PlayerPhysicsComponent * player_physics = new PlayerPhysicsComponent();
-			player_physics->Create(system, player, &game_objects);
-			PlayerInputComponent * player_input = new PlayerInputComponent();
-			player_input->Create(system, player, &game_objects);
+			PhysicsComponent * player_physics = new PhysicsComponent();
+			player_physics->Create(system, player, &game_objects, WORLD_WIDTH/2, 10, 16, 21, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, PLAYER_SPEED);
+			InputComponent * player_input = new InputComponent();
+			player_input->Create(system, player, &game_objects, PLAYER_SPEED);
 			std::vector<Sprite*> sprites;
 			Sprite* idle_sprite = system->createSprite("data/bmps/frame6.bmp");
 			Sprite* jump_sprite = system->createSprite("data/bmps/frame7.bmp");
@@ -130,7 +128,6 @@ public:
 			map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
 
 			player->Create();
-			player->AddComponent(player_behaviour);
 			player->AddComponent(player_physics);
 			player->AddComponent(player_input);
 			player->AddComponent(player_collider);
@@ -146,7 +143,7 @@ public:
 		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
 		koopa_behaviour->Create(system, *koopa, &game_objects);
 		std::vector<Sprite*> sprites;
-		sprites.push_back(system->createSprite("data/bmps/board/frame38.bmp"));
+		sprites.push_back(system->createSprite("data/bmps/frame38.bmp"));
 		RenderComponent * koopa_render = new RenderComponent();
 		koopa_render->Create(system, *koopa, &game_objects, sprites);
 		CollideComponent * map_collider = new CollideComponent();
