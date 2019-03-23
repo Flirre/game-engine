@@ -20,13 +20,19 @@ void GameObject::AddRenderComponent(RenderComponent* component) {
 	renderComponent = component;
 }
 
-void GameObject::SetSprite(Sprite * sprite) {
-	renderComponent->SetSprite(sprite);
+void GameObject::SetSprites(std::vector<Sprite *> sprites) {
+	renderComponent->SetSprites(sprites);
 }
 
-std::vector<Sprite*> GameObject::GetSprites()
+std::vector<std::vector<Sprite*>> GameObject::GetSprites()
 {
 	return renderComponent->GetSprites();
+}
+
+
+std::vector<Sprite*> GameObject::GetSpriteSet(int i)
+{
+	return renderComponent->GetSpriteSet(i);
 }
 
 

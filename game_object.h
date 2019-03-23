@@ -1,7 +1,7 @@
 // GameObject represents objects which moves are drawn
 #include <vector>
 
-enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG, SIDE_HIT, DIE, MAP, ON_MAP, NOT_ON_MAP, JUMP };
+enum Message { HIT, ALIEN_HIT, GAME_OVER, LEVEL_WIN, NO_MSG, SIDE_HIT, DIE, MAP, ON_MAP, NOT_ON_MAP, JUMP, RUNNING, IDLE };
 
 enum Direction { RIGHT, LEFT };
 
@@ -43,8 +43,9 @@ public:
 	virtual void Create();
 	virtual void AddComponent(Component * component);
 	virtual void AddRenderComponent(RenderComponent * component);
-	virtual void SetSprite(Sprite * sprite_name);
-	virtual std::vector<Sprite*> GetSprites();
+	virtual void SetSprites(std::vector<Sprite *> sprite_name);
+	virtual std::vector<std::vector<Sprite*>> GetSprites();
+	virtual std::vector<Sprite*> GetSpriteSet(int i);
 
 
 	virtual void Init();

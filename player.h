@@ -37,7 +37,7 @@ public:
 			hits++;
 			verticalVelocity = 0;
 			onGround = true;
-			SetSprite(GetSprites().at(0));
+			SetSprites(GetSpriteSet(0));
 		}
 		if (m == NOT_ON_MAP)
 		{
@@ -45,7 +45,18 @@ public:
 		}
 		if (m == JUMP) 
 		{
-			SetSprite(GetSprites().at(1));
+			SetSprites(GetSpriteSet(1));
+		}
+		if (m == RUNNING)
+		{
+			if (onGround) 
+			{
+			SetSprites(GetSpriteSet(2));
+			}
+		}
+		if (m == IDLE)
+		{
+			SetSprites(GetSpriteSet(0));
 		}
 	}
 

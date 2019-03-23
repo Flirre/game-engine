@@ -27,18 +27,21 @@ public:
 
 class RenderComponent : public Component
 {
-	Sprite* sprite;
-	std::vector<Sprite*> sprites;
+	Sprite * sprite;
+	std::vector<Sprite*> spriteSet;
+	std::vector<std::vector<Sprite*>> sprites;
 
 public:
 
-	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, std::vector<Sprite*> sprites);
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, std::vector<std::vector<Sprite*>> sprites);
 	virtual void Update(float dt);
 	virtual void Destroy();
-	virtual void SetSprite(Sprite * sprite);
+	virtual void SetSprites(std::vector<Sprite *> sprite);
 
 	Sprite * GetSprite() { return sprite; }
-	std::vector<Sprite*> GetSprites() { return sprites; }
+	std::vector<Sprite *> GetCurrentSpriteSet() { return spriteSet; }
+	std::vector<Sprite*> GetSpriteSet(int i) { return sprites.at(i); }
+	std::vector<std::vector<Sprite*>> GetSprites() { return sprites; }
 };
 
 class PhysicsComponent : public Component

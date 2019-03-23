@@ -12,15 +12,15 @@ void Component::Create(AvancezLib * system, GameObject * go, std::set<GameObject
 	this->game_objects = game_objects;
 }
 
-void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects, std::vector<Sprite*> sprites)
+void RenderComponent::Create(AvancezLib * system, GameObject * go, std::set<GameObject*>* game_objects, std::vector<std::vector<Sprite*>> sprites)
 {
 	Component::Create(system, go, game_objects);
 	this->sprites = sprites;
-	sprite = sprites.at(0);
+	spriteSet = sprites.at(0);
 }
 
-void RenderComponent::SetSprite(Sprite * s) {
-	sprite = s;
+void RenderComponent::SetSprites(std::vector<Sprite *> s) {
+	spriteSet = s;
 }
 
 
@@ -28,7 +28,7 @@ void RenderComponent::Update(float dt)
 {
 	if (!go->enabled)
 		return;
-
+	sprite = spriteSet.at((SDL_GetTicks() / 50) % spriteSet.size());
 	if (sprite)
 		sprite->draw(int(go->horizontalPosition), int(go->verticalPosition), go->direction);
 }
@@ -114,9 +114,9 @@ void InputComponent::Create(AvancezLib* system, GameObject * go, std::set<GameOb
 
 void InputComponent::WalkLeft()
 {
+	go->Receive(RUNNING);
 	is_walking_left = true;
 	go->direction = LEFT;
-	SDL_Log("%f", goSPEED);
 
 	if (abs(go->horizontalVelocity) < goSPEED)
 	{
@@ -126,6 +126,7 @@ void InputComponent::WalkLeft()
 
 void InputComponent::WalkRight()
 {
+	go->Receive(RUNNING);
 	is_walking_right = true;
 	go->direction = RIGHT;
 
@@ -174,6 +175,10 @@ void InputComponent::Stop()
 	go->horizontalVelocity = 0;
 	is_walking_left = false;
 	is_walking_right = false;
+	if (go->onGround)
+	{
+	go->Receive(IDLE);
+	}
 }
 
 void InputComponent::Update(float dt)
@@ -238,6 +243,7 @@ CollisionSide GetCollisionSideFromSlopeComparison(CollisionSide potentialSides, 
 			return velocitySlope < nearestCornerSlope ? Bottom : Right;
 	}
 	// method should never end up here.
+	SDL_Log("--------------------------------------------------------\n\n\n\n\n\n\n------------------------------------------------NONE");
 	return None;
 }
 
@@ -332,22 +338,18 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	switch (collisionSide)
 	{
 	case Left:
-		SDL_Log("Left");
 		correctedLocation.first = go0->horizontalPosition - go->spriteWidth - 1;
 		go->Receive(NOT_ON_MAP);
 		break;
 	case Right:
-		SDL_Log("Right");
 		correctedLocation.first = go0->horizontalPosition + go0->spriteWidth + 1;
 		go->Receive(NOT_ON_MAP);
 		break;
 	case Top:
-		SDL_Log("Top");
 		correctedLocation.second = go0->verticalPosition - go->spriteHeight - 1;
 		go->Receive(ON_MAP);
 		break;
 	case Bottom:
-		SDL_Log("Bottom");
 		correctedLocation.second = go0->verticalPosition + go0->spriteHeight + 1;
 		go->Receive(NOT_ON_MAP);
 		go->verticalVelocity = 0;
