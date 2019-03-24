@@ -46,10 +46,10 @@ public:
 			ledge_coordinates.push_back(std::make_pair(66, 131));
 
 			// lower left single 
-			ledge_coordinates.push_back(std::make_pair(0, 140));
+			ledge_coordinates.push_back(std::make_pair(-13, 140));
 
 			// lower right single 
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 140));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-20, 140));
 
 			// top left
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 87));
@@ -118,7 +118,7 @@ public:
 			PhysicsComponent * player_physics = new PhysicsComponent();
 			player_physics->Create(system, player, &game_objects, WORLD_WIDTH/2, 10, 16, 21, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, PLAYER_SPEED);
 			InputComponent * player_input = new InputComponent();
-			player_input->Create(system, player, &game_objects, PLAYER_SPEED);
+			player_input->Create(system, player, &game_objects, PLAYER_SPEED, RIGHT);
 			std::vector<std::vector<Sprite*>> sprites;
 			std::vector<Sprite*> idle_sprite;
 			std::vector<Sprite*> jump_sprite;
@@ -152,29 +152,37 @@ public:
 			game_objects.insert(player);
 		}
 
-		koopa_pool.Create(1);
-		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++)
+		koopa_pool.Create(2);
+		i = 0;
+		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++, i++)
 		{
-		KoopaBehaviourComponent * koopa_behaviour = new KoopaBehaviourComponent();
-		koopa_behaviour->Create(system, *koopa, &game_objects);
-		std::vector<std::vector<Sprite*>> sprites;
-		std::vector<Sprite*> idle_sprite;
-		idle_sprite.push_back(system->createSprite("data/bmps/frame38.bmp"));
-		sprites.push_back(idle_sprite);
-		RenderComponent * koopa_render = new RenderComponent();
-		koopa_render->Create(system, *koopa, &game_objects, sprites);
-		CollideComponent * map_collider = new CollideComponent();
-		map_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &map);
-		CollideComponent * brick_collider = new CollideComponent();
-		brick_collider->Create(system, player, &game_objects, (ObjectPool<GameObject>*) &bricks);
+			PhysicsComponent * koopa_physics = new PhysicsComponent();
+			koopa_physics->Create(system, *koopa, &game_objects, (WORLD_WIDTH*i)+40, 16, 16, 16, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, KOOPA_SPEED);
+			std::vector<std::vector<Sprite*>> sprites;
+			std::vector<Sprite*> walking_sprite;
+			walking_sprite.push_back(system->createSprite("data/bmps/frame38.bmp"));
+			walking_sprite.push_back(system->createSprite("data/bmps/frame39.bmp"));
+			walking_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+			walking_sprite.push_back(system->createSprite("data/bmps/frame41.bmp"));
+			sprites.push_back(walking_sprite);
+			RenderComponent * koopa_render = new RenderComponent();
+			koopa_render->Create(system, *koopa, &game_objects, sprites);
+			CollideComponent * map_collider = new CollideComponent();
+			map_collider->Create(system, *koopa, &game_objects, (ObjectPool<GameObject>*) &map);
+			KoopaCollideComponent * friend_collider = new KoopaCollideComponent();
+			friend_collider->Create(system, *koopa, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
+			KoopaInputComponent * koopa_input = new KoopaInputComponent();
+			koopa_input->Create(system, *koopa, &game_objects, static_cast<Direction> (i));
 
-		(*koopa)->Create();
-		(*koopa)->AddComponent(koopa_behaviour);
-		(*koopa)->AddRenderComponent(koopa_render);
-		(*koopa)->AddComponent(map_collider);
-		(*koopa)->AddComponent(brick_collider);
-		(*koopa)->AddReceiver(this);
-		game_objects.insert(*koopa);
+
+			(*koopa)->Create();
+			(*koopa)->AddComponent(koopa_input);
+			(*koopa)->AddComponent(koopa_physics);
+			(*koopa)->AddRenderComponent(koopa_render);
+			(*koopa)->AddComponent(map_collider);
+			(*koopa)->AddComponent(friend_collider);
+			(*koopa)->AddReceiver(this);
+			game_objects.insert(*koopa);
 		}
 
 		life_sprite = system->createSprite("data/bmps/frame0.bmp");
@@ -227,13 +235,13 @@ public:
 	virtual void Draw()
 	{
 		char msg[1024];
-		sprintf(msg, "%07d", Score());
-		system->drawText(172, 14, msg);
-		sprintf(msg, "bonus: %.1fX", game_speed);
-		system->drawText(172, 32, msg);
+		sprintf(msg, "MARIO %07d", Score());
+		system->drawText(2, 2, msg);
+		//sprintf(msg, "bonus: %.1fX", game_speed);
+		//system->drawText(172, 32, msg);
 
-		for (int i = 0; i < player->lives; i++)
-			life_sprite->draw(i*18+20, 16, false);
+		//for (int i = 0; i < player->lives; i++)
+		//	life_sprite->draw(i*18+20, 16, false);
 
 		if (IsGameOver())
 		{
@@ -247,8 +255,8 @@ public:
 		if (m == GAME_OVER)
 			game_over = true;
 
-		if (m == ALIEN_HIT)
-			score += POINTS_PER_ALIEN * game_speed;
+		if (m == HIT)
+			score += POINTS_PER_ALIEN;
 	}
 
 

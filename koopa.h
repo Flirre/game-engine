@@ -1,12 +1,91 @@
 #pragma once
 
-// a koopa
+class KoopaInputComponent : public InputComponent
+{
+public:
+	void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, Direction direction)
+	{
+		InputComponent::Create(system, go, game_objects, KOOPA_SPEED, direction);
+		go->direction = direction;
+	}
+
+	virtual void Receive(Message m)
+	{
+		SDL_Log("test");
+		if (m == IDLE)
+		{
+			Stop();
+		}
+
+	}
+
+	void Turn_Around()
+	{
+		Stop();
+		if (go->direction == RIGHT)
+		{
+			WalkLeft();
+		}
+		else
+		{
+			WalkRight();
+		}
+	}
+
+	void Update(float dt)
+	{
+		if (go->direction == RIGHT)
+		{
+			WalkRight();
+		}
+		else
+		{
+			WalkLeft();
+		}
+	}
+
+	void test()
+	{
+		SDL_Log("test");
+	}
+};
+
+class KoopaCollideComponent : public CollideComponent
+{
+public:
+	void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, ObjectPool<GameObject> * coll_objects) 
+	{
+		CollideComponent::Create(system, go, game_objects, coll_objects);
+	}
+
+	void Update(float dt)
+	{
+		{
+			for (auto i = 0; i < coll_objects->pool.size(); i++)
+			{
+				GameObject * go0 = coll_objects->pool[i];
+				if (go0->enabled && go != go0) {
+					if (boundingBoxCollision(go, go0)) // check for any AABB collision
+					{
+							ResolveCollision(go, go0, dt);
+							if (!go0->map_object)
+							{
+								go->Receive(TURN_AROUND);
+								go0->Receive(TURN_AROUND);
+							}
+					}
+				}
+			}
+		}
+	}
+
+};
+
 class Koopa : public GameObject
 {
 public:
 
 	int lives;
-	bool onGround;
 
 	virtual ~Koopa() { SDL_Log("Koopa::~Koopa"); }
 
@@ -22,20 +101,40 @@ public:
 		onGround = false;
 		if (m == HIT)
 		{
-			//SDL_Log("Koopa::Hit!");
 			RemoveLife();
 			if (lives < 0) {
-				//SDL_Log("Koopa:Ded!");
 				this->enabled = false;
 			}
 		}
-		if (m == SIDE_HIT)
-		{
-			//SDL_Log("Koopa::SIDESLAMMER");
-		}
 		if (m == ON_MAP)
 		{
+			verticalVelocity = 0;
 			onGround = true;
+			SetSprites(GetSpriteSet(0));
+		}
+		if (m == NOT_ON_MAP)
+		{
+			onGround = false;
+		}
+		if (m == JUMP)
+		{
+			SetSprites(GetSpriteSet(1));
+		}
+		if (m == RUNNING)
+		{
+			if (onGround)
+			{
+				SetSprites(GetSpriteSet(2));
+			}
+		}
+		if (m == IDLE)
+		{
+			SetSprites(GetSpriteSet(0));
+		}
+		if (m == TURN_AROUND)
+		{
+			KoopaInputComponent *koopa_input = (KoopaInputComponent*)(InputComponent*)this->components.at(0); //InputComponent is added at place 0 in the list of Components.
+			koopa_input->Turn_Around();
 		}
 
 	}
@@ -45,166 +144,4 @@ public:
 		lives--;
 		//SDL_Log("remaining lives %d", lives);
 	}
-};
-
-
-class KoopaBehaviourComponent : public Component
-{
-
-private:
-	Koopa * koopa;
-
-	bool is_walking_left = false;
-	bool is_walking_right = false;
-	bool space_released = true;
-	float koopa_horizontal_position = 0.0f;
-	const float KOOPA_SPEED = 60.0f;
-
-	Sprite * sprite;
-
-public:
-	virtual ~KoopaBehaviourComponent() {}
-
-	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects)
-	{
-		Component::Create(system, go, game_objects);
-
-		koopa = (Koopa*) go;
-
-
-
-	}
-
-	virtual void Init()
-	{
-		go->spriteWidth = 16;
-		go->spriteHeight = 16;
-		go->horizontalPosition = WORLD_WIDTH / 3;
-		go->verticalPosition = WORLD_HEIGHT/2;
-
-
-		koopa_horizontal_position = go->horizontalPosition;
-
-		go->horizontalVelocity = 0;
-		go->verticalVelocity = 0;
-
-		// Spawn facing right
-		go->direction = RIGHT;
-
-	}
-
-
-	// Basic euler integration
-	void UpdatePhysics(float dt) {
-		go->horizontalPosition += go->horizontalVelocity * dt;
-		koopa_horizontal_position = go->horizontalPosition;
-		go->verticalPosition += go->verticalVelocity	 * dt;
-
-		// If above the ground, apply gravity
-		if (go->verticalPosition < GROUND_POSITION && koopa->onGround) {
-			go->verticalVelocity -= GRAVITY * dt;
-		}
-	}
-
-	void CheckBounds() {
-		if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth))
-			go->horizontalPosition = 0;
-
-		if (go->horizontalPosition < 0)
-			go->horizontalPosition = WORLD_WIDTH - go->spriteWidth;
-
-		// Ground
-		if (go->verticalPosition > GROUND_POSITION+5)
-			go->verticalPosition = GROUND_POSITION+5;
-	}
-
-	// Apply movement based on input keys
-	void UpdateMovement(AvancezLib::KeyStatus keys) {
-		if (go->direction == LEFT) {
-			WalkLeft();
-		}
-
-		if (go->direction == RIGHT) {
-			WalkRight();
-		}
-
-		if (keys.space && space_released) {
-			//ChangeDirection();
-			space_released = false;
-			//Bounce();
-		}
-
-		if (!keys.space) {
-			space_released = true;
-		}
-	}
-
-
-	void WalkLeft() {
-		// Change sprite first time and send event to AI
-		if (!is_walking_left) {
-			//go->SetSprite(sprite);
-		}
-		is_walking_left = true;
-
-		go->direction = LEFT;
-
-		if (abs(go->horizontalVelocity) < KOOPA_SPEED) {
-			go->horizontalVelocity = -KOOPA_SPEED;
-		}
-
-	}
-
-	void WalkRight() {
-		// Change sprite first time
-		if (!is_walking_right) {
-			//go->SetSprite(sprite);
-		}
-		is_walking_right = true;
-
-		go->direction = RIGHT;
-
-		if (abs(go->horizontalVelocity) < KOOPA_SPEED) {
-			go->horizontalVelocity = KOOPA_SPEED;
-		}
-	}
-
-	void Bounce() {
-		if (true) {
-			go->verticalVelocity = -125.0f;
-		}
-	}
-
-	void Stop() {
-		go->horizontalVelocity = 0;
-		is_walking_left = false;
-		is_walking_right = false;
-	}
-
-	void ChangeDirection() {
-		Stop();
-		if (go->direction == RIGHT) {
-			WalkLeft();
-			return;
-		}
-		if (go->direction == LEFT) {
-			WalkRight();
-			return;
-		}
-		return;
-	}
-
-
-	// Update the player
-	// physics depend on the time.
-	virtual void Update(float dt)
-	{
-		AvancezLib::KeyStatus keys;
-		system->getKeyStatus(keys);
-
-		UpdatePhysics(dt);
-		//UpdateMovement(keys);
-		CheckBounds();
-	}
-
 };

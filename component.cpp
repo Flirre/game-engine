@@ -102,10 +102,10 @@ void PhysicsComponent::Update(float dt)
 	CheckBounds(WORLD_WIDTH, go);
 }
 
-void InputComponent::Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED)
+void InputComponent::Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED, Direction direction)
 {
 	Component::Create(system, go, game_objects);
-	go->direction = RIGHT;
+	go->direction = direction;
 	is_walking_left = false;
 	is_walking_right = false;
 	space_released = true;
@@ -195,7 +195,7 @@ void CollideComponent::Create(AvancezLib* system, GameObject * go, std::set<Game
 	this->coll_objects = coll_objects;
 }
 
-bool boundingBoxCollision(GameObject* go, GameObject* go0)
+bool CollideComponent::boundingBoxCollision(GameObject* go, GameObject* go0)
 {	
 
 	double goLeftEdge = go->horizontalPosition;
@@ -359,7 +359,7 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	return correctedLocation;
 }
 
-void ResolveCollision(GameObject* go, GameObject* go0, float dt)
+void CollideComponent::ResolveCollision(GameObject* go, GameObject* go0, float dt)
 {
 	std::pair < double, double> newLocation = GetCorrectedLocation(go, go0, GetCollisionSide(go, go0, dt));
 	go->horizontalPosition = newLocation.first;
@@ -382,8 +382,6 @@ void CollideComponent::Update(float dt)
 				}
 				else
 				{
-					SDL_Log("GAMO::VertPos=%d", go->verticalPosition);
-					SDL_Log("GAMO MAPO DIFF=%d", (go0->verticalPosition - go->verticalPosition));
 					go->Receive(HIT);
 					go0->Receive(HIT);
 				}

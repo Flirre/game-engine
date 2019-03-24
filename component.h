@@ -5,6 +5,7 @@
 class GameObject;
 class AvancezLib;
 class Sprite;
+enum Direction;
 
 class Component
 {
@@ -67,7 +68,7 @@ class InputComponent : public Component
 	float goSPEED;
 
 public:
-	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED);
+	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, float SPEED, Direction direction);
 	virtual void Update(float dt);
 
 	virtual void WalkLeft();
@@ -80,11 +81,14 @@ public:
 
 class CollideComponent : public Component
 {
-	ObjectPool<GameObject> * coll_objects; // collision will be tested with these objects
 	bool map_object; // used to differentiate map object and game object collision.
 
 public:
+	ObjectPool<GameObject> * coll_objects; // collision will be tested with these objects
 	virtual void Create(AvancezLib* system, GameObject * go, std::set<GameObject*> * game_objects, ObjectPool<GameObject> * coll_objects);
 	virtual void Update(float dt);
+
+	bool boundingBoxCollision(GameObject * go, GameObject * go0);
+	void ResolveCollision(GameObject * go, GameObject * go0, float dt);
 };
 
