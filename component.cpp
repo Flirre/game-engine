@@ -148,11 +148,11 @@ void InputComponent::Jump()
 
 void InputComponent::UpdateMovement(AvancezLib::KeyStatus keys)
 {
-	if (keys.left) {
+	if (keys.left && !is_walking_right) {
 		WalkLeft();
 	}
 
-	if (keys.right) {
+	if (keys.right && !is_walking_left) {
 		WalkRight();
 	}
 
