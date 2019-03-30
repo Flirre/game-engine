@@ -68,11 +68,11 @@ void PhysicsComponent::Create(AvancezLib * system, GameObject * go, std::set<Gam
 void PhysicsComponent::CheckBounds(unsigned int WORLD_WIDTH, GameObject* go) {
 	const float GROUND_POSITION = 203.0f;
 
-	if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth))
+	if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth / 2))
 		go->horizontalPosition = 0;
 
-	if (go->horizontalPosition < 0)
-		go->horizontalPosition = WORLD_WIDTH - go->spriteWidth;
+	if (go->horizontalPosition < -(go->spriteWidth / 2))
+		go->horizontalPosition = WORLD_WIDTH - go->spriteWidth / 2;
 
 	// Ground
 	if (go->verticalPosition > GROUND_POSITION)

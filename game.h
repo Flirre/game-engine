@@ -7,6 +7,10 @@ class Game : public GameObject
 	ObjectPool<Koopa> koopa_pool;
 	ObjectPool<MapObject> map;
 	ObjectPool<Brick> bricks;
+	GameObject * top_left_pipe;
+	GameObject * top_right_pipe;
+	GameObject * bottom_left_pipe;
+	GameObject * bottom_right_pipe;
 	std::vector<std::pair<double, double>> ledge_coordinates;
 	
 	AvancezLib* system;
@@ -110,6 +114,65 @@ public:
 			}
 		}
 
+		{
+			top_left_pipe = new MapObject();
+			std::vector<Sprite*> sprites;
+			std::vector<std::vector<Sprite*>> all_sprites;
+			sprites.push_back(system->createSprite("data/bmps/board/frame12.bmp"));
+			all_sprites.push_back(sprites);
+			RenderComponent * pipe_render = new RenderComponent();
+			pipe_render->Create(system, top_left_pipe, &game_objects, all_sprites);
+			top_left_pipe->Create();
+			top_left_pipe->AddRenderComponent(pipe_render);
+			top_left_pipe->horizontalPosition = 0;
+			top_left_pipe->verticalPosition = 38;
+			game_objects.insert(top_left_pipe);
+		}
+
+		{
+			top_right_pipe = new MapObject();
+			std::vector<Sprite*> sprites;
+			std::vector<std::vector<Sprite*>> all_sprites;
+			sprites.push_back(system->createSprite("data/bmps/board/frame9.bmp"));
+			all_sprites.push_back(sprites);
+			RenderComponent * pipe_render = new RenderComponent();
+			pipe_render->Create(system, top_right_pipe, &game_objects, all_sprites);
+			top_right_pipe->Create();
+			top_right_pipe->AddRenderComponent(pipe_render);
+			top_right_pipe->horizontalPosition = WORLD_WIDTH-33;
+			top_right_pipe->verticalPosition = 38;
+			game_objects.insert(top_right_pipe);
+		}
+
+		{
+			bottom_left_pipe = new MapObject();
+			std::vector<Sprite*> sprites;
+			std::vector<std::vector<Sprite*>> all_sprites;
+			sprites.push_back(system->createSprite("data/bmps/board/frame12.bmp"));
+			all_sprites.push_back(sprites);
+			RenderComponent * pipe_render = new RenderComponent();
+			pipe_render->Create(system, bottom_left_pipe, &game_objects, all_sprites);
+			bottom_left_pipe->Create();
+			bottom_left_pipe->AddRenderComponent(pipe_render);
+			bottom_left_pipe->horizontalPosition = -15;
+			bottom_left_pipe->verticalPosition = 192;
+			game_objects.insert(bottom_left_pipe);
+		}
+
+		{
+			bottom_right_pipe = new MapObject();
+			std::vector<Sprite*> sprites;
+			std::vector<std::vector<Sprite*>> all_sprites;
+			sprites.push_back(system->createSprite("data/bmps/board/frame9.bmp"));
+			all_sprites.push_back(sprites);
+			RenderComponent * pipe_render = new RenderComponent();
+			pipe_render->Create(system, bottom_right_pipe, &game_objects, all_sprites);
+			bottom_right_pipe->Create();
+			bottom_right_pipe->AddRenderComponent(pipe_render);
+			bottom_right_pipe->horizontalPosition = WORLD_WIDTH - 18;
+			bottom_right_pipe->verticalPosition = 192;
+			game_objects.insert(bottom_right_pipe);
+		}
 
 
 
@@ -202,7 +265,10 @@ public:
 		{
 			(*koopa)->Init();
 		}
-		//aliens_grid->Init();
+		top_left_pipe->Init();
+		top_right_pipe->Init();
+		bottom_left_pipe->Init();
+		bottom_right_pipe->Init();
 
 		enabled = true;
 		game_over = false;
@@ -216,20 +282,20 @@ public:
 			}
 			dt = 0.f;
 		}
+		// updating map objects first, so that movable characters are rendered in front of them.
 		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
-			(*go)->Update(dt);
+			if ((*go)->map_object) {
+				(*go)->Update(dt);
+			}
 
-		// check if there are still active aliens
-		// if not, send a message to re-init the level
-		//bool are_aliens_still_there = false;
-		//for (auto alien = aliens_pool.pool.begin(); alien != aliens_pool.pool.end(); alien++)
-		//	are_aliens_still_there |= (*alien)->enabled;
-		//if (!are_aliens_still_there)
-		//{
-		//	// level win!
-		//	game_speed += 0.4f;
-		//	aliens_grid->Init();
-		//}
+		// possible optimization would be tracking what objects aren't being rendered and then rendering
+		// just those objects instead of doing two passes.
+		for (auto go = game_objects.begin(); go != game_objects.end(); go++)
+			if (!(*go)->map_object) {
+				(*go)->Update(dt);
+			}
+
+
 	}
 
 	virtual void Draw()
@@ -237,8 +303,6 @@ public:
 		char msg[1024];
 		sprintf(msg, "MARIO %07d", Score());
 		system->drawText(2, 2, msg);
-		//sprintf(msg, "bonus: %.1fX", game_speed);
-		//system->drawText(172, 32, msg);
 
 		//for (int i = 0; i < player->lives; i++)
 		//	life_sprite->draw(i*18+20, 16, false);
