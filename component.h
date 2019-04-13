@@ -64,6 +64,7 @@ class InputComponent : public Component
 {
 	bool is_walking_left;
 	bool is_walking_right;
+	bool is_jumping;
 	bool space_released;
 	float goSPEED;
 

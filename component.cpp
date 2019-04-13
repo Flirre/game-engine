@@ -99,6 +99,7 @@ void InputComponent::Create(AvancezLib* system, GameObject * go, std::set<GameOb
 	go->direction = direction;
 	is_walking_left = false;
 	is_walking_right = false;
+	is_jumping = false;
 	space_released = true;
 	goSPEED = SPEED;
 }
@@ -133,24 +134,27 @@ void InputComponent::Jump()
 	{
 		go->verticalVelocity = -250.0f;
 		go->onGround = false;
+		is_jumping = true;
 		go->Receive(JUMP);
 	}
 }
 
 void InputComponent::UpdateMovement(AvancezLib::KeyStatus keys)
 {
-	if (keys.left && !is_walking_right) {
-		WalkLeft();
-	}
+	if (!is_jumping)
+	{
+		if (keys.left && !is_walking_right) {
+			WalkLeft();
+		}
 
-	if (keys.right && !is_walking_left) {
-		WalkRight();
-	}
+		if (keys.right && !is_walking_left) {
+			WalkRight();
+		}
 
-	if ((is_walking_right && keys.right == false) || (is_walking_left && keys.left == false)) {
-		Stop();
+		if ((is_walking_right && keys.right == false) || (is_walking_left && keys.left == false)) {
+			Stop();
+		}
 	}
-
 	if (keys.space && space_released) {
 		space_released = false;
 		Jump();
@@ -177,6 +181,11 @@ void InputComponent::Update(float dt)
 	AvancezLib::KeyStatus keys;
 	system->getKeyStatus(keys);
 	UpdateMovement(keys);
+
+	if (go->onGround)
+	{
+		is_jumping = false;
+	}
 }
 
 

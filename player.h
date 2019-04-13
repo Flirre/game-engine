@@ -41,7 +41,6 @@ public:
 		}
 		if (m == JUMP) 
 		{
-			Send(JUMP);
 			SetSprites(GetSpriteSet(1));
 		}
 		if (m == RUNNING)

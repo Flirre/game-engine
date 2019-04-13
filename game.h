@@ -359,10 +359,6 @@ public:
 			map.pool.at(34)->enabled = true;
 			spawn_timer = system->getElapsedTime();
 		}
-		if (m == JUMP) {
-			SDL_Log("gone");
-
-		}
 	}
 
 
