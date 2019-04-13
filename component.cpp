@@ -1,5 +1,6 @@
 #include "component.h"
 #include "game_object.h"
+#include "map_object.h"
 #include "avancezlib.h"
 #include "windows.h"
 #include "winnt.h"
@@ -348,11 +349,19 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	case Top:
 		correctedLocation.second = go0->verticalPosition - go->spriteHeight - 1;
 		go->Receive(ON_MAP);
+		// this function is used by all CollisionComponents
+		// This checks if the GameObject go is standing on a platform which was recently activated
+		// by Marios jump.
+		if (dynamic_cast<MapObject*>(go0)->active)
+		{
+			go->Receive(HIT);
+		}
 		break;
 	case Bottom:
 		correctedLocation.second = go0->verticalPosition + go0->spriteHeight + 1;
 		go->Receive(NOT_ON_MAP);
 		go->verticalVelocity = 0;
+		go0->Receive(BOUNCE);
 	default:
 		break;
 	}

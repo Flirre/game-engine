@@ -11,7 +11,6 @@ public:
 
 	virtual void Receive(Message m)
 	{
-		SDL_Log("test");
 		if (m == IDLE)
 		{
 			Stop();
@@ -43,11 +42,6 @@ public:
 			WalkLeft();
 		}
 	}
-
-	void test()
-	{
-		SDL_Log("test");
-	}
 };
 
 class KoopaCollideComponent : public CollideComponent
@@ -67,12 +61,14 @@ public:
 				if (go0->enabled && go != go0) {
 					if (boundingBoxCollision(go, go0)) // check for any AABB collision
 					{
+
 							ResolveCollision(go, go0, dt);
 							if (!go0->map_object)
 							{
 								go->Receive(TURN_AROUND);
 								go0->Receive(TURN_AROUND);
 							}
+
 					}
 				}
 			}
@@ -93,7 +89,7 @@ public:
 	{
 		SDL_Log("Koopa::Init");
 		GameObject::Init();
-		lives = 100;
+		lives = 2;
 	}
 
 	virtual void Receive(Message m)
@@ -101,6 +97,7 @@ public:
 		onGround = false;
 		if (m == HIT)
 		{
+			SDL_Log("ouch owie");
 			RemoveLife();
 			if (lives < 0) {
 				this->enabled = false;

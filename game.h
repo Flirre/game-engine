@@ -83,9 +83,12 @@ public:
 				(*map_iterator)->verticalPosition = ledge_coordinates.back().second;
 				ledge_coordinates.pop_back();
 				std::vector<Sprite*> sprites;
+				std::vector<Sprite*> activated_sprite;
 				std::vector<std::vector<Sprite*>> all_sprites;
 				sprites.push_back(system->createSprite("data/bmps/board/frame23.bmp"));
+				activated_sprite.push_back(system->createSprite("data/bmps/board/frame25.bmp"));
 				all_sprites.push_back(sprites);
+				all_sprites.push_back(activated_sprite);
 				RenderComponent * ledge_render = new RenderComponent();
 				ledge_render->Create(system, *map_iterator, &game_objects, all_sprites);
 				(*map_iterator)->Create();
