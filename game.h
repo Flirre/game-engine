@@ -36,36 +36,36 @@ public:
 		// create pairs of x- and y-coordinates for placement of ledges.
 		{
 			// bottom left
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 175));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 175));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 160));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 160));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 160));
 
 			// bottom right
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 33, 175));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 66, 175));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 175));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 33, 160));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 66, 160));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 99, 160));
 
 			// middle 
-			ledge_coordinates.push_back(std::make_pair(165, 131));
-			ledge_coordinates.push_back(std::make_pair(132, 131));
-			ledge_coordinates.push_back(std::make_pair(99, 131));
-			ledge_coordinates.push_back(std::make_pair(66, 131));
+			ledge_coordinates.push_back(std::make_pair(165, 110));
+			ledge_coordinates.push_back(std::make_pair(132, 110));
+			ledge_coordinates.push_back(std::make_pair(99, 110));
+			ledge_coordinates.push_back(std::make_pair(66, 110));
 
 			// lower left single 
-			ledge_coordinates.push_back(std::make_pair(0, 140));
+			ledge_coordinates.push_back(std::make_pair(0, 118));
 
 			// lower right single 
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 140));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 118));
 
 			// top left
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 87));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 87));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 60));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 223, 60));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 256, 60));
 
 			// top right
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 87));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-66, 87));
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 87));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 60));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-66, 60));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-99, 60));
 		}
 
 		int i = 0;
@@ -146,7 +146,7 @@ public:
 			top_left_pipe->Create();
 			top_left_pipe->AddRenderComponent(pipe_render);
 			top_left_pipe->horizontalPosition = 0;
-			top_left_pipe->verticalPosition = 38;
+			top_left_pipe->verticalPosition = 12;
 			game_objects.insert(top_left_pipe);
 		}
 
@@ -161,7 +161,7 @@ public:
 			top_right_pipe->Create();
 			top_right_pipe->AddRenderComponent(pipe_render);
 			top_right_pipe->horizontalPosition = WORLD_WIDTH-33;
-			top_right_pipe->verticalPosition = 38;
+			top_right_pipe->verticalPosition = 12;
 			game_objects.insert(top_right_pipe);
 		}
 
@@ -332,7 +332,7 @@ public:
 	{
 		char msg[1024];
 		sprintf(msg, "MARIO %07d", Score());
-		system->drawText(2, 2, msg);
+		system->drawText(82, 2, msg);
 
 		//for (int i = 0; i < player->lives; i++)
 		//	life_sprite->draw(i*18+20, 16, false);
