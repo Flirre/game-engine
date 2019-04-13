@@ -3,7 +3,7 @@ class BombBehaviourComponent : public Component
 public:
 	virtual void Update(float dt)
 	{
-		go->verticalPosition += BOMB_SPEED * dt;
+		go->verticalPosition += 0 * dt;
 
 		if (go->verticalPosition > 480) // When a bomb reaches the bottom of the screen, it disappears.
 			go->enabled = false;

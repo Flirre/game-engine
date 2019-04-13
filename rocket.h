@@ -5,7 +5,7 @@ public:
 
 	void Update(float dt)
 	{
-		go->verticalPosition -= ROCKET_SPEED * dt; // rocket_speed * time
+		go->verticalPosition -= 0 * dt; // rocket_speed * time
 
 		if (go->verticalPosition < 0) // When the rocket reaches the top of the screen, it disappears.
 			go->enabled = false;

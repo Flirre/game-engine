@@ -11,6 +11,7 @@ class Game : public GameObject
 	GameObject * top_right_pipe;
 	GameObject * bottom_left_pipe;
 	GameObject * bottom_right_pipe;
+	MapObject * spawn_ledge;
 	std::vector<std::pair<double, double>> ledge_coordinates;
 	
 	AvancezLib* system;
@@ -21,6 +22,7 @@ class Game : public GameObject
 	Sprite * life_sprite;
 	bool game_over;
 
+	float spawn_timer = -10;
 	unsigned int score = 0;
 
 public:
@@ -50,10 +52,10 @@ public:
 			ledge_coordinates.push_back(std::make_pair(66, 131));
 
 			// lower left single 
-			ledge_coordinates.push_back(std::make_pair(-13, 140));
+			ledge_coordinates.push_back(std::make_pair(0, 140));
 
 			// lower right single 
-			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-20, 140));
+			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH-33, 140));
 
 			// top left
 			ledge_coordinates.push_back(std::make_pair(WORLD_WIDTH - 190, 87));
@@ -70,7 +72,7 @@ public:
 		int j = 0;
 		SDL_Log("ledge - %d", ledge_coordinates.size());
 		int nr_of_ledges = ledge_coordinates.size();
-		map.Create(nr_of_ledges + 16);
+		map.Create(nr_of_ledges + 16 + 1); // 16 = bottom bricks, 1 = spawn ledge
 		{
 			auto map_iterator = map.pool.begin();
 			// create ledges that players and enemies walk on
@@ -95,8 +97,9 @@ public:
 			/* create bricks at the bottom of the map
 			 for loop starts where ledges end.
 			 16 bricks is equal to full width of map.*/
-			for (auto brick = map_iterator; brick != map.pool.end(); brick++, j++)
+			for (map_iterator;i < nr_of_ledges+16; map_iterator++, j++, i++)
 			{
+				auto brick = map_iterator;
 				// render bricks at the bottom of the screen, covering all of the bottom.
 				(*brick)->horizontalPosition = 0 + (16 * j);
 				(*brick)->verticalPosition = (WORLD_HEIGHT - 15);
@@ -111,6 +114,24 @@ public:
 				(*brick)->AddRenderComponent(brick_render);
 				(*brick)->AddReceiver(this);
 				game_objects.insert(*brick);
+			}
+
+			{
+				auto spawn_ledge = map_iterator;
+				std::vector<Sprite*> sprites;
+				std::vector<std::vector<Sprite*>> all_sprites;
+				sprites.push_back(system->createSprite("data/bmps/board/frame269.bmp"));
+				all_sprites.push_back(sprites);
+				RenderComponent * spawn_render = new RenderComponent();
+				spawn_render->Create(system, (*spawn_ledge), &game_objects, all_sprites);
+				(*spawn_ledge)->Create();
+				(*spawn_ledge)->AddRenderComponent(spawn_render);
+				(*spawn_ledge)->horizontalPosition = 123;
+				(*spawn_ledge)->verticalPosition = 44;
+				(*spawn_ledge)->AddReceiver(this);
+				this->AddReceiver(*spawn_ledge);
+				(*spawn_ledge)->Init(15, 6);
+				game_objects.insert(*spawn_ledge);
 			}
 		}
 
@@ -175,17 +196,20 @@ public:
 		}
 
 
+		
+
 
 		{
 			player = new Player();
 			PhysicsComponent * player_physics = new PhysicsComponent();
-			player_physics->Create(system, player, &game_objects, WORLD_WIDTH/2, 10, 16, 21, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, PLAYER_SPEED);
+			player_physics->Create(system, player, &game_objects, WORLD_WIDTH/2 - 6, WORLD_HEIGHT - 38, 16, 21, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, PLAYER_SPEED);
 			InputComponent * player_input = new InputComponent();
 			player_input->Create(system, player, &game_objects, PLAYER_SPEED, RIGHT);
 			std::vector<std::vector<Sprite*>> sprites;
 			std::vector<Sprite*> idle_sprite;
 			std::vector<Sprite*> jump_sprite;
 			std::vector<Sprite*> running_sprites;
+			std::vector<Sprite*> death_sprite;
 			idle_sprite.push_back(system->createSprite("data/bmps/frame6.bmp"));
 			jump_sprite.push_back(system->createSprite("data/bmps/frame7.bmp"));
 			{
@@ -195,9 +219,11 @@ public:
 				running_sprites.push_back(system->createSprite("data/bmps/frame4.bmp"));
 				running_sprites.push_back(system->createSprite("data/bmps/frame5.bmp"));
 			}
+			death_sprite.push_back(system->createSprite("data/bmps/frame14.bmp"));
 			sprites.push_back(idle_sprite);
 			sprites.push_back(jump_sprite);
 			sprites.push_back(running_sprites);
+			sprites.push_back(death_sprite);
 			RenderComponent * player_render = new RenderComponent();
 			player_render->Create(system, player, &game_objects, sprites);
 			CollideComponent * player_collider = new CollideComponent();
@@ -294,6 +320,10 @@ public:
 			if (!(*go)->map_object) {
 				(*go)->Update(dt);
 			}
+		if (((system->getElapsedTime() - spawn_timer) > SPAWN_TIME) && (map.pool.at(34)->enabled))
+		{
+			map.pool.at(34)->enabled = false;
+		}
 
 
 	}
@@ -320,7 +350,19 @@ public:
 			game_over = true;
 
 		if (m == HIT)
-			score += POINTS_PER_ALIEN;
+			score += 20;
+
+		// messages to control spawn pad.
+		if (m == SPAWN) {
+			SDL_Log("BACK");
+			map.pool.at(34)->Init(15, 6);
+			map.pool.at(34)->enabled = true;
+			spawn_timer = system->getElapsedTime();
+		}
+		if (m == JUMP) {
+			SDL_Log("gone");
+
+		}
 	}
 
 

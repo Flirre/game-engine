@@ -66,23 +66,15 @@ void PhysicsComponent::Create(AvancezLib * system, GameObject * go, std::set<Gam
 }
 
 void PhysicsComponent::CheckBounds(unsigned int WORLD_WIDTH, GameObject* go) {
-	const float GROUND_POSITION = 203.0f;
-
 	if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth / 2))
 		go->horizontalPosition = 0;
 
 	if (go->horizontalPosition < -(go->spriteWidth / 2))
 		go->horizontalPosition = WORLD_WIDTH - go->spriteWidth / 2;
-
-	// Ground
-	if (go->verticalPosition > GROUND_POSITION)
-		go->verticalPosition = GROUND_POSITION;
 }
 
 void PhysicsComponent::UpdatePosition(float dt, GameObject* go, float GRAVITY)
 {
-	const float GROUND_POSITION = 203.0f;
-
 	go->prevHPos = go->horizontalPosition;
 	go->prevVPos = go->verticalPosition;
 	go->prevHVel = go->horizontalVelocity;
@@ -90,10 +82,9 @@ void PhysicsComponent::UpdatePosition(float dt, GameObject* go, float GRAVITY)
 
 	go->horizontalPosition += go->horizontalVelocity * dt;
 	go->verticalPosition += go->verticalVelocity	 * dt;
-	// If above the ground, apply gravity
-	if (go->verticalPosition < GROUND_POSITION) {
-		go->verticalVelocity -= GRAVITY * dt;
-	}
+	
+	// always apply gravity
+	go->verticalVelocity -= GRAVITY * dt;
 }
 
 void PhysicsComponent::Update(float dt)
@@ -383,7 +374,6 @@ void CollideComponent::Update(float dt)
 				else
 				{
 					go->Receive(HIT);
-					go0->Receive(HIT);
 				}
 			}
 		}

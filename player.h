@@ -7,6 +7,7 @@ public:
 
 	int lives;	// it's game over when goes below zero 
 	int hits = 0;
+	bool alive = true;
 
 	virtual ~Player() { SDL_Log("Player::~Player"); }
 
@@ -21,14 +22,9 @@ public:
 	{
 		if (m == HIT)
 		{
-			//SDL_Log("Player::TopHit");
-		}
-		if (m == SIDE_HIT) 
-		{
-			hits++;
-			//SDL_Log("Player::SideHit! %d", hits);
-			RemoveLife();
-
+			lives--;
+			Fall();
+			SetSprites(GetSpriteSet(3));
 			if (lives < 0)
 				Send(GAME_OVER);
 		}
@@ -45,6 +41,7 @@ public:
 		}
 		if (m == JUMP) 
 		{
+			Send(JUMP);
 			SetSprites(GetSpriteSet(1));
 		}
 		if (m == RUNNING)
@@ -60,9 +57,43 @@ public:
 		}
 	}
 
-	void RemoveLife()
+	void Respawn()
 	{
-		//lives--;
-		//SDL_Log("remaining lives %d", lives);
+		alive = true;
+		Receive(IDLE);
+		horizontalPosition = WORLD_WIDTH / 2 - 6;
+		verticalPosition = 0 - spriteHeight;
+		verticalVelocity = 0;
+		SDL_Log("Respawned");
+		Send(SPAWN);
+	}
+
+	void Fall()
+	{
+		alive = false;
+		horizontalVelocity = 0;
+		verticalVelocity = -120;
+
+	}
+
+	void Update(float dt)
+	{
+		// if player is alive update as usual
+		if (alive)
+		{
+			GameObject::Update(dt);
+		}
+		// if player is dead, only update some components so sprite can fall through map.
+		else
+		{
+			if (verticalPosition < (WORLD_HEIGHT)) {
+				components.at(0)->Update(dt); // physics component (so Mario falls off map)
+				components.at(4)->Update(dt); // render component (so Mario is rendered while falling)
+			}
+			else
+			{
+				Respawn();
+			}
+		}
 	}
 };
