@@ -194,6 +194,7 @@ void CollideComponent::Create(AvancezLib* system, GameObject * go, std::set<Game
 {
 	Component::Create(system, go, game_objects);
 	this->coll_objects = coll_objects;
+	this->system = system;
 }
 
 bool CollideComponent::boundingBoxCollision(GameObject* go, GameObject* go0)
@@ -335,6 +336,7 @@ CollisionSide GetCollisionSide(GameObject* go, GameObject* go0, float dt)
 
 std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, CollisionSide collisionSide)
 {
+	MapObject* mapObjectgo0 = dynamic_cast<MapObject*>(go0);
 	std::pair<double, double> correctedLocation = std::make_pair(go->horizontalPosition, go->verticalPosition);
 	switch (collisionSide)
 	{
@@ -349,19 +351,27 @@ std::pair<double, double> GetCorrectedLocation(GameObject* go, GameObject* go0, 
 	case Top:
 		correctedLocation.second = go0->verticalPosition - go->spriteHeight - 1;
 		go->Receive(ON_MAP);
-		// this function is used by all CollisionComponents
+		
+		// since this function is used by all CollisionComponents.
 		// This checks if the GameObject go is standing on a platform which was recently activated
 		// by Marios jump.
-		if (dynamic_cast<MapObject*>(go0)->active)
+		if (mapObjectgo0)
 		{
+			if (mapObjectgo0->active)
+			{
 			go->Receive(HIT);
+			}
 		}
 		break;
 	case Bottom:
 		correctedLocation.second = go0->verticalPosition + go0->spriteHeight + 1;
 		go->Receive(NOT_ON_MAP);
 		go->verticalVelocity = 0;
+		// if go0 is a MapObject
+		if (mapObjectgo0)
+		{
 		go0->Receive(BOUNCE);
+		}
 	default:
 		break;
 	}

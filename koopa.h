@@ -89,7 +89,7 @@ public:
 	{
 		SDL_Log("Koopa::Init");
 		GameObject::Init();
-		lives = 2;
+		lives = 3;
 	}
 
 	virtual void Receive(Message m)
@@ -97,7 +97,7 @@ public:
 		onGround = false;
 		if (m == HIT)
 		{
-			SDL_Log("ouch owie");
+			verticalVelocity = -100.f;
 			RemoveLife();
 			if (lives < 0) {
 				this->enabled = false;

@@ -7,6 +7,15 @@ public:
 	virtual ~MapObject() { SDL_Log("MapObject::MapObject"); }
 	bool spawn = false;
 	bool active;
+	float bounce_time = -100000.f;
+	AvancezLib * system;
+
+	virtual void Create(AvancezLib * system)
+	{
+		this->system = system;
+		SDL_Log("MapObject::Create");
+		GameObject::Create();
+	}
 
 	virtual void Init() 
 	{
@@ -44,6 +53,18 @@ public:
 			this->spawn = true;
 	}
 
+	virtual void Update(float dt)
+	{
+		if (((system->getElapsedTime() - bounce_time) > .2f) && active)
+		{
+			SetSprites(GetSpriteSet(0));
+			active = false;
+		}
+		else {
+		GameObject::Update(dt);
+		}
+	}
+
 	virtual void Receive(Message m)
 	{
 		if (m == SIDE_HIT)
@@ -67,11 +88,12 @@ public:
 
 		if (m == BOUNCE)
 		{
-			if (!spawn)
+			if (!spawn && !active)
 			{
 				SDL_Log("imactive");
 				active = true;
 				SetSprites(GetSpriteSet(1));
+				bounce_time = system->getElapsedTime();
 			}
 		}
 	}

@@ -86,12 +86,16 @@ public:
 				std::vector<Sprite*> activated_sprite;
 				std::vector<std::vector<Sprite*>> all_sprites;
 				sprites.push_back(system->createSprite("data/bmps/board/frame23.bmp"));
+
 				activated_sprite.push_back(system->createSprite("data/bmps/board/frame25.bmp"));
+				activated_sprite.push_back(system->createSprite("data/bmps/board/frame26.bmp"));
+				activated_sprite.push_back(system->createSprite("data/bmps/board/frame27.bmp"));
+				activated_sprite.push_back(system->createSprite("data/bmps/board/frame23.bmp"));
 				all_sprites.push_back(sprites);
 				all_sprites.push_back(activated_sprite);
 				RenderComponent * ledge_render = new RenderComponent();
 				ledge_render->Create(system, *map_iterator, &game_objects, all_sprites);
-				(*map_iterator)->Create();
+				(*map_iterator)->Create(system);
 				(*map_iterator)->AddRenderComponent(ledge_render);
 				(*map_iterator)->AddReceiver(this);
 				game_objects.insert(*map_iterator);
@@ -113,7 +117,7 @@ public:
 				sprites.push_back(system->createSprite("data/bmps/board/frame0.bmp"));
 				all_sprites.push_back(sprites);
 				brick_render->Create(system, (*brick), &game_objects, all_sprites);
-				(*brick)->Create();
+				(*brick)->Create(system);
 				(*brick)->AddRenderComponent(brick_render);
 				(*brick)->AddReceiver(this);
 				game_objects.insert(*brick);
@@ -127,7 +131,7 @@ public:
 				all_sprites.push_back(sprites);
 				RenderComponent * spawn_render = new RenderComponent();
 				spawn_render->Create(system, (*spawn_ledge), &game_objects, all_sprites);
-				(*spawn_ledge)->Create();
+				(*spawn_ledge)->Create(system);
 				(*spawn_ledge)->AddRenderComponent(spawn_render);
 				(*spawn_ledge)->horizontalPosition = 123;
 				(*spawn_ledge)->verticalPosition = 44;
@@ -323,6 +327,8 @@ public:
 			if (!(*go)->map_object) {
 				(*go)->Update(dt);
 			}
+
+		// when SPAWN_TIME time has elapsed, remove the spawn ledge
 		if (((system->getElapsedTime() - spawn_timer) > SPAWN_TIME) && (map.pool.at(34)->enabled))
 		{
 			map.pool.at(34)->enabled = false;
