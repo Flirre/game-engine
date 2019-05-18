@@ -29,13 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="aliens_grid.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="avancezlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bomb.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="component.h">
@@ -53,9 +47,6 @@
     <ClInclude Include="player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rocket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="koopa.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -63,9 +54,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="brick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

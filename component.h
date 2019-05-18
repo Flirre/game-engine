@@ -58,6 +58,8 @@ public:
 
 	virtual void CheckBounds(unsigned int WORLD_WIDTH, GameObject* go);
 	virtual void UpdatePosition(float dt, GameObject* go, float GRAVITY);
+	float GetGravity() { return GRAVITY; }
+	unsigned int GetWorldWidth() { return WORLD_WIDTH; }
 };
 
 class InputComponent : public Component

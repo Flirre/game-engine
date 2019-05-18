@@ -30,14 +30,7 @@ float game_speed = 1.f;
 #include "map_object.h"
 #include "brick.h"
 
-
-//#include "collision_system.h"
-
-
-#include "rocket.h"
-#include "bomb.h"
 #include "koopa.h"
-#include "aliens_grid.h"
 #include "player.h"
 
 #include "game.h"

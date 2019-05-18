@@ -13,6 +13,7 @@ class Game : public GameObject
 	GameObject * bottom_right_pipe;
 	MapObject * spawn_ledge;
 	std::vector<std::pair<double, double>> ledge_coordinates;
+	std::vector<std::pair<double, double>> koopa_start_coordinates;
 	
 	AvancezLib* system;
 
@@ -24,6 +25,7 @@ class Game : public GameObject
 
 	float spawn_timer = -10;
 	unsigned int score = 0;
+	int koopas_killed = 0;
 
 public:
 
@@ -248,19 +250,40 @@ public:
 			game_objects.insert(player);
 		}
 
-		koopa_pool.Create(2);
+		// create pairs of x- and y-coordinates for placement of ledges.
+		{
+			koopa_start_coordinates.push_back(std::make_pair(WORLD_WIDTH-32, 40));
+			koopa_start_coordinates.push_back(std::make_pair(16, 40));
+			koopa_start_coordinates.push_back(std::make_pair(WORLD_WIDTH - 32, 138));
+			koopa_start_coordinates.push_back(std::make_pair(16, 138));
+		}
+		
+		int nr_of_koopas = koopa_start_coordinates.size();
+		koopa_pool.Create(nr_of_koopas);
 		i = 0;
 		for(auto koopa = koopa_pool.pool.begin(); koopa != koopa_pool.pool.end(); koopa++, i++)
 		{
-			PhysicsComponent * koopa_physics = new PhysicsComponent();
-			koopa_physics->Create(system, *koopa, &game_objects, (WORLD_WIDTH*i)+40, 16, 16, 16, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, KOOPA_SPEED);
+			KoopaPhysicsComponent * koopa_physics = new KoopaPhysicsComponent();
+			koopa_physics->Create(system, *koopa, &game_objects, koopa_start_coordinates.back().first, koopa_start_coordinates.back().second, 16, 16, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY, KOOPA_SPEED);
+			koopa_start_coordinates.pop_back();
 			std::vector<std::vector<Sprite*>> sprites;
 			std::vector<Sprite*> walking_sprite;
-			walking_sprite.push_back(system->createSprite("data/bmps/frame38.bmp"));
-			walking_sprite.push_back(system->createSprite("data/bmps/frame39.bmp"));
-			walking_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
-			walking_sprite.push_back(system->createSprite("data/bmps/frame41.bmp"));
+			std::vector<Sprite*> flipping_sprite;
+			{
+				walking_sprite.push_back(system->createSprite("data/bmps/frame38.bmp"));
+				walking_sprite.push_back(system->createSprite("data/bmps/frame39.bmp"));
+				walking_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+				walking_sprite.push_back(system->createSprite("data/bmps/frame41.bmp"));
+			}
+			{
+				flipping_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+				flipping_sprite.push_back(system->createSprite("data/bmps/frame54.bmp"));
+				flipping_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+				flipping_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+				flipping_sprite.push_back(system->createSprite("data/bmps/frame40.bmp"));
+			}
 			sprites.push_back(walking_sprite);
+			sprites.push_back(flipping_sprite);
 			RenderComponent * koopa_render = new RenderComponent();
 			koopa_render->Create(system, *koopa, &game_objects, sprites);
 			CollideComponent * map_collider = new CollideComponent();
@@ -268,7 +291,7 @@ public:
 			KoopaCollideComponent * friend_collider = new KoopaCollideComponent();
 			friend_collider->Create(system, *koopa, &game_objects, (ObjectPool<GameObject>*) &koopa_pool);
 			KoopaInputComponent * koopa_input = new KoopaInputComponent();
-			koopa_input->Create(system, *koopa, &game_objects, static_cast<Direction> (i));
+			koopa_input->Create(system, *koopa, &game_objects, static_cast<Direction> (i % 2));
 
 
 			(*koopa)->Create();
@@ -309,7 +332,16 @@ public:
 
 	virtual void Update(float dt)
 	{
-		if (IsGameOver()) {
+		if (IsGameOver()) 
+		{
+			for (auto go = game_objects.begin(); go != game_objects.end(); go++) {
+				(*go)->Destroy();
+			}
+			dt = 0.f;
+		}
+
+		if (PlayerWin())
+		{
 			for (auto go = game_objects.begin(); go != game_objects.end(); go++) {
 				(*go)->Destroy();
 			}
@@ -340,16 +372,27 @@ public:
 	virtual void Draw()
 	{
 		char msg[1024];
-		sprintf(msg, "MARIO %07d", Score());
-		system->drawText(82, 2, msg);
-
+		if (!(IsGameOver() || PlayerWin())) {
+			sprintf(msg, "MARIO %07d", Score());
+			system->drawText(82, 2, msg);
+		}
 		//for (int i = 0; i < player->lives; i++)
 		//	life_sprite->draw(i*18+20, 16, false);
 
 		if (IsGameOver())
 		{
 			sprintf(msg, "*** G A M E  O V E R ***");
-			system->drawText(55, 110, msg);
+			system->drawText(55, 100, msg);
+			sprintf(msg, "%07d", Score());
+			system->drawText(100, 120, msg);
+		}
+
+		if (PlayerWin())
+		{
+			sprintf(msg, "FINAL SCORE %07d", Score());
+			system->drawText(52, 120, msg);
+			sprintf(msg, "CONGRATULATIONS, YOU WON!", Score());
+			system->drawText(32, 100, msg);
 		}
 	}
 
@@ -358,9 +401,10 @@ public:
 		if (m == GAME_OVER)
 			game_over = true;
 
-		if (m == HIT)
-			score += 20;
-
+		if (m == HIT) {
+			score += 400;
+			koopas_killed++;
+		}
 		// messages to control spawn pad.
 		if (m == SPAWN) {
 			SDL_Log("BACK");
@@ -374,6 +418,11 @@ public:
 	bool IsGameOver()
 	{
 		return game_over;
+	}
+
+	bool PlayerWin()
+	{
+		return koopas_killed == 4;
 	}
 
 	unsigned int Score()

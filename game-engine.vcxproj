@@ -138,17 +138,13 @@
   <ItemGroup>
     <ClInclude Include="brick.h" />
     <ClInclude Include="koopa.h" />
-    <ClInclude Include="aliens_grid.h" />
     <ClInclude Include="avancezlib.h" />
-    <ClInclude Include="bomb.h" />
     <ClInclude Include="component.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="game_object.h" />
     <ClInclude Include="map_object.h" />
     <ClInclude Include="object_pool.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="rocket.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

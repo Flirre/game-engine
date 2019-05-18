@@ -61,18 +61,54 @@ public:
 				if (go0->enabled && go != go0) {
 					if (boundingBoxCollision(go, go0)) // check for any AABB collision
 					{
-
 							ResolveCollision(go, go0, dt);
-							if (!go0->map_object)
+							if (!go0->map_object && (abs(go->verticalPosition - go0->verticalPosition) < 2))
 							{
 								go->Receive(TURN_AROUND);
 								go0->Receive(TURN_AROUND);
 							}
-
 					}
 				}
 			}
 		}
+	}
+
+};
+
+class KoopaPhysicsComponent : public PhysicsComponent 
+{
+public:
+	void CheckBounds(unsigned int WORLD_WIDTH, GameObject* go) {
+		if (go->horizontalPosition > (WORLD_WIDTH - go->spriteWidth / 2))
+			go->horizontalPosition = 0;
+
+		if (go->horizontalPosition < -(go->spriteWidth / 2))
+			go->horizontalPosition = WORLD_WIDTH - go->spriteWidth / 2;
+
+		// check if koopa is at same height as pipe
+		if (go->verticalPosition > 190) 
+		{
+			// teleport to corresponding top pipe
+			if (go->horizontalPosition < 16) 
+			{
+				go->horizontalPosition = 32;
+				go->verticalPosition = 10;
+				go->Receive(TURN_AROUND);
+			}
+
+			if (go->horizontalPosition > (WORLD_WIDTH - 32))
+			{
+				go->horizontalPosition = (WORLD_WIDTH - 48);
+				go->verticalPosition = 10;
+				go->Receive(TURN_AROUND);
+			}
+		}
+	}
+
+	void Update(float dt)
+	{
+		PhysicsComponent::UpdatePosition(dt, go, this->GetGravity());
+		CheckBounds(this->GetWorldWidth(), go);
 	}
 
 };
@@ -100,6 +136,7 @@ public:
 			verticalVelocity = -100.f;
 			RemoveLife();
 			if (lives < 0) {
+				Send(HIT);
 				this->enabled = false;
 			}
 		}
