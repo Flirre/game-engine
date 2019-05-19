@@ -40,7 +40,6 @@ public:
 	{
 			SDL_Log("MapObject::Init");
 			GameObject::Init();
-			SDL_Log("help");
 			this->spriteWidth = width;
 			this->spriteHeight = height;
 
@@ -72,7 +71,6 @@ public:
 		{
 			if (spawn)
 			{
-				SDL_Log("SIDE TRUE");
 				enabled = true;
 			}
 		}
@@ -81,7 +79,6 @@ public:
 		{
 			if (spawn)
 			{
-				SDL_Log("JUMP FALSE");
 				enabled = true;
 			}
 		}
@@ -90,7 +87,6 @@ public:
 		{
 			if (!spawn && !active)
 			{
-				SDL_Log("imactive");
 				active = true;
 				SetSprites(GetSpriteSet(1));
 				bounce_time = system->getElapsedTime();

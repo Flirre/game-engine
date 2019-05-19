@@ -245,7 +245,6 @@ CollisionSide GetCollisionSideFromSlopeComparison(CollisionSide potentialSides, 
 			return velocitySlope < nearestCornerSlope ? Bottom : Right;
 	}
 	// method should never end up here.
-	SDL_Log("--------------------------------------------------------\n\n\n\n\n\n\n------------------------------------------------NONE");
 	return None;
 }
 

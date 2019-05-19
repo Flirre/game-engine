@@ -72,7 +72,6 @@ public:
 
 		int i = 0;
 		int j = 0;
-		SDL_Log("ledge - %d", ledge_coordinates.size());
 		int nr_of_ledges = ledge_coordinates.size();
 		map.Create(nr_of_ledges + 16 + 1); // 16 = bottom bricks, 1 = spawn ledge
 		{
@@ -407,7 +406,6 @@ public:
 		}
 		// messages to control spawn pad.
 		if (m == SPAWN) {
-			SDL_Log("BACK");
 			map.pool.at(34)->Init(15, 6);
 			map.pool.at(34)->enabled = true;
 			spawn_timer = system->getElapsedTime();

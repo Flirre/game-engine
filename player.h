@@ -63,7 +63,6 @@ public:
 		horizontalPosition = WORLD_WIDTH / 2 - 6;
 		verticalPosition = 0 - spriteHeight;
 		verticalVelocity = 0;
-		SDL_Log("Respawned");
 		Send(SPAWN);
 	}
 
